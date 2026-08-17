@@ -13,7 +13,7 @@ required:true
 },
 
 designation:{
-type: Date,
+type: String,
 required:true
 },
 
@@ -25,7 +25,7 @@ required:true
 image:{
 type: String,
 required:true
-},
+}
 
 },
 {
