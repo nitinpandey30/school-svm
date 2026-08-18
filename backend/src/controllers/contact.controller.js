@@ -1,6 +1,4 @@
 const contactModel = require("../models/contact.model");
-// const jwt = require("jsonwebtoken");
-// const bcrypt = require("bcryptjs");
 
 async function createContact(req, res) {
   try {
