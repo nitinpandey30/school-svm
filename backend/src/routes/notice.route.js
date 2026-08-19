@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router()
 const noticeController = require('../controllers/notice.controller');
+const authJwt = require('../middleware/auth.middleware');
 
-router.post("/",noticeController.createNotice)
+router.post("/",authJwt,noticeController.createNotice)
 router.get("/",noticeController.getNotice)
-router.delete("/:id",noticeController.deleteNotice)
-router.put("/:id",noticeController.updateNotice)
+router.delete("/:id",authJwt,noticeController.deleteNotice)
+router.put("/:id",authJwt,noticeController.updateNotice)
 
 
 
