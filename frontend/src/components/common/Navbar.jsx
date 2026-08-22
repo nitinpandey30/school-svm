@@ -10,7 +10,7 @@ function Navbar() {
     { name: "About", path: "/about" },
     { name: "Notices", path: "/notices" },
     { name: "Events", path: "/events" },
-    { name: "Faculty", path: "/faculty" },
+   { name: "Fee Structure", path: "/fees" },
     { name: "Gallery", path: "/gallery" },
     { name: "Contact", path: "/contact" },
   ];
@@ -54,12 +54,7 @@ function Navbar() {
               </NavLink>
             ))}
 
-            <Link
-              to="/admin/login"
-              className="px-4 py-2 rounded-lg bg-blue-700 text-white text-sm font-medium hover:bg-blue-800 transition"
-            >
-              Admin
-            </Link>
+           
           </div>
 
           {/* Mobile Button */}
@@ -92,14 +87,6 @@ function Navbar() {
                   {link.name}
                 </NavLink>
               ))}
-
-              <Link
-                to="/admin/login"
-                onClick={() => setIsOpen(false)}
-                className="mt-2 px-3 py-2 rounded-lg bg-blue-700 text-white text-sm font-medium text-center"
-              >
-                Admin Login
-              </Link>
 
             </div>
           </div>

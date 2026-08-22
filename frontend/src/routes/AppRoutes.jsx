@@ -1,25 +1,46 @@
 import { Routes, Route } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
+import Home from "../pages/public/Home";
+import Notices from "../pages/public/Notices";
+import Events from "../pages/public/Events";
+import FeeStructure from "../pages/public/FeeStructure";
+import Gallery from "../pages/public/Gallery";
+import Contact from "../pages/public/Contact";
+import About from "../pages/public/About";
+import Login from "../pages/admin/Login";
+import ProtectedRoute from "./ProtectedRoutes";
+import Dashboard from "../pages/admin/Dashboard";
+import AdminLayout from "../layouts/AdminLayout";
+import ManageNotices from "../pages/admin/ManageNotices";
 
 function AppRoutes() {
   return (
     <Routes>
-
       {/* Public Website */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<h1>Home</h1>} />
-        <Route path="/about" element={<h1>About</h1>} />
-        <Route path="/notices" element={<h1>Notices</h1>} />
-        <Route path="/events" element={<h1>Events</h1>} />
-        <Route path="/faculty" element={<h1>Faculty</h1>} />
-        <Route path="/gallery" element={<h1>Gallery</h1>} />
-        <Route path="/contact" element={<h1>Contact</h1>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/notices" element={<Notices />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/fees" element={<FeeStructure />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/contact" element={<Contact />} />
       </Route>
 
       {/* Admin */}
-      <Route path="/admin/login" element={<h1>Admin Login</h1>} />
-      <Route path="/admin/dashboard" element={<h1>Dashboard</h1>} />
+      <Route path="/admin/login" element={<Login />} />
 
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="notices" element={<ManageNotices />} />
+      </Route>
     </Routes>
   );
 }
