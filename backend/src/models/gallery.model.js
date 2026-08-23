@@ -7,10 +7,19 @@ const gallerySchema = new mongoose.Schema(
       required: true,
     },
 
-    imageUrl: {
-      type: [String],
-      required: true,
-    },
+    images: [
+      {
+        url: {
+          type: String,
+          required: true,
+        },
+
+        publicId: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
 
     date: {
       type: Date,

@@ -12,6 +12,9 @@ import ProtectedRoute from "./ProtectedRoutes";
 import Dashboard from "../pages/admin/Dashboard";
 import AdminLayout from "../layouts/AdminLayout";
 import ManageNotices from "../pages/admin/ManageNotices";
+import ManageEvents from "../pages/admin/ManageEvents";
+import ManageFees from "../pages/admin/ManageFees";
+import ManageGallery from "../pages/admin/ManageGallery";
 
 function AppRoutes() {
   return (
@@ -40,6 +43,9 @@ function AppRoutes() {
       >
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="notices" element={<ManageNotices />} />
+        <Route path="events" element={<ManageEvents />} />
+        <Route path="fees" element={<ManageFees />} />
+        <Route path="gallery" element={<ManageGallery />} />
       </Route>
     </Routes>
   );
