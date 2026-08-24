@@ -15,6 +15,8 @@ import ManageNotices from "../pages/admin/ManageNotices";
 import ManageEvents from "../pages/admin/ManageEvents";
 import ManageFees from "../pages/admin/ManageFees";
 import ManageGallery from "../pages/admin/ManageGallery";
+import ManageMessages from "../pages/admin/ManageMessages";
+
 
 function AppRoutes() {
   return (
@@ -46,6 +48,7 @@ function AppRoutes() {
         <Route path="events" element={<ManageEvents />} />
         <Route path="fees" element={<ManageFees />} />
         <Route path="gallery" element={<ManageGallery />} />
+        <Route path="messages" element={<ManageMessages />} />
       </Route>
     </Routes>
   );

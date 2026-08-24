@@ -91,14 +91,14 @@ function Gallery() {
                   {/* Cover Image */}
                   <div className="relative aspect-video overflow-hidden">
                     <img
-                      src={album.imageUrl?.[0]}
+                      src={album.images?.[0]?.url}
                       alt={album.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
 
                     {/* Image Count */}
                     <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs font-medium px-3 py-1.5 rounded-full">
-                      {album.imageUrl?.length || 0} Photos
+                      {album.images.length || 0} Photos
                     </div>
                   </div>
 
@@ -172,7 +172,7 @@ function Gallery() {
             {/* Main Image */}
             <div className="bg-black rounded-xl overflow-hidden">
               <img
-                src={selectedAlbum.imageUrl?.[selectedImage]}
+                src={selectedAlbum.images?.[selectedImage]?.url}
                 alt={selectedAlbum.title}
                 className="w-full max-h-[65vh] object-contain"
               />
@@ -180,9 +180,9 @@ function Gallery() {
 
             {/* Thumbnails */}
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mt-5">
-              {selectedAlbum.imageUrl?.map((image, index) => (
+              {selectedAlbum.images?.map((image, index) => (
                 <button
-                  key={index}
+                  key={image._id}
                   onClick={() => setSelectedImage(index)}
                   className={`aspect-square rounded-lg overflow-hidden border-2 ${
                     selectedImage === index
@@ -191,7 +191,7 @@ function Gallery() {
                   }`}
                 >
                   <img
-                    src={image}
+                    src={image.url}
                     alt={`${selectedAlbum.title} ${index + 1}`}
                     className="w-full h-full object-cover"
                   />

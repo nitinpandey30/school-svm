@@ -26,7 +26,7 @@ async function createContact(req, res) {
 
 async function getContact(req, res) {
   try {
-    const contacts = await contactModel.find();
+    const contacts = await contactModel.find().sort({ createdAt: -1 });
     if (!contacts || contacts.length === 0) {
       return res.status(400).json({ error: "NO data found" });
     }
@@ -42,8 +42,8 @@ async function deleteContacts(req, res) {
   try {
     const contact = await contactModel.findByIdAndDelete(id);
     if (!contact) {
-      return res.status(400).json({
-        message: "NO contact found"
+      return res.status(404).json({
+        message: "No contact found",
       });
     }
     return res.status(200).json({ message: "Contact Deleted Successfully!" });

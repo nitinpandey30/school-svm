@@ -23,3 +23,11 @@ export const deleteGallery = async (id) => {
   const response = await axiosInstance.delete(`/gallery/${id}`);
   return response.data;
 };
+
+export const deleteGalleryImage = async (galleryId, imageId) => {
+  const response = await axiosInstance.delete(
+    `/gallery/${galleryId}/image/${imageId}`
+  );
+
+  return response.data;
+};

@@ -6,6 +6,7 @@ import {
   createGallery,
   updateGallery,
   deleteGallery,
+  deleteGalleryImage,
 } from "../../api/gallery.api";
 
 function ManageGallery() {
@@ -15,6 +16,7 @@ function ManageGallery() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -66,6 +68,7 @@ function ManageGallery() {
     setPreviewImages([]);
     setEditingId(null);
     setShowForm(false);
+    setExistingImages([]);
   };
 
   const handleSubmit = async (e) => {
@@ -109,18 +112,21 @@ function ManageGallery() {
   };
 
   const handleEdit = (item) => {
-    setEditingId(item._id);
+  setEditingId(item._id);
 
-    setFormData({
-      title: item.title || "",
-      date: item.date ? new Date(item.date).toISOString().split("T")[0] : "",
-    });
+  setFormData({
+    title: item.title || "",
+    date: item.date
+      ? new Date(item.date).toISOString().split("T")[0]
+      : "",
+  });
 
-    setImages([]);
-    setPreviewImages([]);
+  setExistingImages(item.images || []);
+  setImages([]);
+  setPreviewImages([]);
 
-    setShowForm(true);
-  };
+  setShowForm(true);
+};
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
@@ -142,6 +148,39 @@ function ManageGallery() {
       );
     }
   };
+
+  const handleRemoveImage = async (imageId) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to remove this image?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const response = await deleteGalleryImage(
+      editingId,
+      imageId
+    );
+
+    setExistingImages(response.gallery.images);
+
+    setGallery((prev) =>
+      prev.map((item) =>
+        item._id === editingId
+          ? response.gallery
+          : item
+      )
+    );
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to delete image."
+    );
+  }
+};
 
   return (
     <div className="p-6 sm:p-8">
@@ -227,6 +266,37 @@ function ManageGallery() {
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {editingId && existingImages.length > 0 && (
+  <div>
+    <p className="text-sm font-medium text-slate-700 mb-3">
+      Existing Images
+    </p>
+
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {existingImages.map((image) => (
+        <div
+          key={image._id}
+          className="relative aspect-square rounded-lg overflow-hidden bg-slate-100"
+        >
+          <img
+            src={image.url}
+            alt={formData.title}
+            className="w-full h-full object-cover"
+          />
+
+          <button
+            type="button"
+            onClick={() => handleRemoveImage(image._id)}
+            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
             {/* Image Upload */}
             <div>
@@ -343,7 +413,7 @@ function ManageGallery() {
                   <h3 className="font-semibold text-slate-900">{item.title}</h3>
 
                   <p className="text-sm text-slate-500 mt-1">
-                    {item.imageUrl?.length || 0} images
+                    {item.images?.length || 0} images
                   </p>
 
                   <p className="text-xs text-slate-400 mt-2">
