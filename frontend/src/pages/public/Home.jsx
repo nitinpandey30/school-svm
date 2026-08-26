@@ -392,27 +392,34 @@ function Home() {
         </div>
       </section>
 
-      {/* ================= CTA ================= */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <p className="text-blue-600 font-semibold mb-3">HAVE QUESTIONS?</p>
+      {/* ================= SCHOOL LOCATION ================= */}
+      <section className="py-16 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Heading */}
+          <div className="text-center mb-10">
+            <p className="text-red-800 font-semibold mb-2">FIND US</p>
 
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
-            We Would Love to Hear From You
-          </h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+              Visit Our School
+            </h2>
 
-          <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
-            Get in touch with us for admissions, general enquiries, school
-            information and more.
-          </p>
+            <p className="mt-3 text-slate-500">
+              Find us at Shaheed Uttam Chand Saraswati Vidya Mandir Inter
+              College, Pachpokariya, Banbasa.
+            </p>
+          </div>
 
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-2 mt-7 px-6 py-3 bg-red-800 hover:bg-red-600 text-white rounded-lg font-medium transition"
-          >
-            Contact Us
-            <ArrowRight size={18} />
-          </Link>
+          {/* Map */}
+          <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md">
+            <iframe
+              title="Shaheed Uttam Chand Saraswati Vidya Mandir Inter College Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1745.0921734872222!2d80.06190385955706!3d28.981907846797736!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39a054f31cbfcd55%3A0xd101e5d10b174ed7!2sShaheed%20Uttam%20Chand%20Saraswati%20Vidya%20Mandir%20Inter%20College%20Pachpokariya!5e0!3m2!1sen!2sin!4v1787756511316!5m2!1sen!2sin"
+              className="w-full h-[350px] sm:h-[450px] border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
         </div>
       </section>
     </div>

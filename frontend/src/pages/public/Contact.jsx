@@ -69,32 +69,36 @@ function Contact() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Contact Information */}
-          <div className="space-y-4">
-            <ContactCard
-              icon={<MapPin size={22} />}
-              title="Our Address"
-              text="School Road, Dehradun, Uttarakhand, India"
-            />
+          
+{/* Contact Information */}
+<div className="space-y-4">
 
-            <ContactCard
-              icon={<Phone size={22} />}
-              title="Phone"
-              text="+91 98765 43210"
-            />
+  <ContactCard
+    icon={<MapPin size={22} className="text-red-400 shrink-0 mt-0.5" />}
+    title="Our Address"
+    text="Shaheed Uttam Chand Saraswati Vidhya Mandir Inter College, Pachpokariya, Banbasa, Champawat, Uttarakhand, India"
+  />
 
-            <ContactCard
-              icon={<Mail size={22} />}
-              title="Email"
-              text="school@example.com"
-            />
+  <ContactCard
+    icon={<Phone size={22} className="text-red-400 shrink-0" />}
+    title="Phone"
+    text="School Office"
+  />
 
-            <ContactCard
-              icon={<Clock size={22} />}
-              title="Office Hours"
-              text="Monday - Saturday, 9:00 AM - 3:00 PM"
-            />
-          </div>
+  <ContactCard
+    icon={<Mail size={22} className="text-red-400 shrink-0" />}
+    title="Email"
+    text="School Office Email"
+  />
+
+  <ContactCard
+    icon={<Clock size={22} className="text-red-400 shrink-0" />}
+    title="Office Hours"
+    text="Monday - Saturday, 9:00 AM - 3:00 PM"
+  />
+
+</div>
+
 
           {/* Contact Form */}
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
@@ -205,7 +209,7 @@ function Contact() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-red-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition"
               >
                 <Send size={18} />
 

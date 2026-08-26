@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 
@@ -15,8 +15,44 @@ function Navbar() {
     { name: "Contact Us", path: "/contact" },
   ];
 
+  const [showNavbar, setShowNavbar] = useState(true);
+
+  useEffect(() => {
+  let lastScrollY = window.scrollY;
+
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+
+    // Top of page -> always show
+    if (currentScrollY <= 10) {
+      setShowNavbar(true);
+    }
+    // Scrolling down -> hide
+    else if (currentScrollY > lastScrollY) {
+      setShowNavbar(false);
+      setIsOpen(false);
+    }
+    // Scrolling up -> show
+    else {
+      setShowNavbar(true);
+    }
+
+    lastScrollY = currentScrollY;
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+}, []);
+
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-md">
+    <header
+  className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200
+    transition-transform duration-300 ease-in-out
+    ${showNavbar ? "translate-y-0" : "-translate-y-full"}`}
+>
       {/* ================= SCHOOL HEADER ================= */}
 
       <div className="border-b border-slate-200">

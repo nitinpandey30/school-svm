@@ -4,16 +4,15 @@ import Footer from "../components/common/Footer";
 
 function PublicLayout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Navbar />
 
-      <main className="flex-1">
+      <main className="pt-[105px]">
         <Outlet />
       </main>
 
       <Footer />
-    </div>
+    </>
   );
 }
-
 export default PublicLayout;
