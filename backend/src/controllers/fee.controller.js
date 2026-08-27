@@ -1,49 +1,61 @@
 const feeModel = require("../models/fee.model");
+const cloudinary = require('../config/cloudinary');
 
 async function createFee(req, res) {
   try {
-    const {
-      className,
-      admissionFee,
-      tuitionFee,
-      annualFee,
-      examFee,
-      otherCharges,
-    } = req.body;
+    const { academicYear } = req.body;
 
-    if (
-      !className ||
-      admissionFee === undefined ||
-      tuitionFee === undefined ||
-      annualFee === undefined ||
-      examFee === undefined
-    ) {
+    if (!academicYear) {
       return res.status(400).json({
-        message: "All required fields are required",
+        message: "Academic year is required",
       });
     }
 
-    const existingFee = await feeModel.findOne({ className });
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Fee PDF is required",
+      });
+    }
+
+    // Check duplicate academic year
+    const existingFee = await feeModel.findOne({ academicYear });
 
     if (existingFee) {
       return res.status(400).json({
-        message: "Fee structure for this class already exists",
+        message: "Fee structure for this academic year already exists",
       });
     }
 
+    // Upload PDF to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: "school-fees",
+          resource_type: "raw",
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      uploadStream.end(req.file.buffer);
+    });
+
     const fee = await feeModel.create({
-      className,
-      admissionFee,
-      tuitionFee,
-      annualFee,
-      examFee,
-      otherCharges,
+      academicYear,
+      pdfUrl: result.secure_url,
+      publicId: result.public_id,
     });
 
     return res.status(201).json({
-      message: "Fee structure created successfully",
+      message: "Fee structure uploaded successfully",
       fee,
     });
+
   } catch (error) {
     console.log("error:", error);
 
@@ -53,13 +65,17 @@ async function createFee(req, res) {
   }
 }
 
+
 async function getFees(req, res) {
   try {
-    const fees = await feeModel.find().sort({ className: 1 });
+    const fees = await feeModel
+      .find()
+      .sort({ academicYear: -1 });
 
     return res.status(200).json({
       fees,
     });
+
   } catch (error) {
     console.log("error:", error);
 
@@ -69,29 +85,76 @@ async function getFees(req, res) {
   }
 }
 
+
 async function updateFee(req, res) {
   try {
     const { id } = req.params;
+    const { academicYear } = req.body;
 
-    const updatedFee = await feeModel.findByIdAndUpdate(
-      id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const fee = await feeModel.findById(id);
 
-    if (!updatedFee) {
+    if (!fee) {
       return res.status(404).json({
         message: "Fee structure not found",
       });
     }
 
+    // Update academic year if provided
+    if (academicYear) {
+      const existingFee = await feeModel.findOne({
+        academicYear,
+        _id: { $ne: id },
+      });
+
+      if (existingFee) {
+        return res.status(400).json({
+          message: "Fee structure for this academic year already exists",
+        });
+      }
+
+      fee.academicYear = academicYear;
+    }
+
+    // If new PDF uploaded
+    if (req.file) {
+
+      // Delete old PDF
+      if (fee.publicId) {
+        await cloudinary.uploader.destroy(fee.publicId, {
+          resource_type: "raw",
+        });
+      }
+
+      // Upload new PDF
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "school-fees",
+            resource_type: "raw",
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        uploadStream.end(req.file.buffer);
+      });
+
+      fee.pdfUrl = result.secure_url;
+      fee.publicId = result.public_id;
+    }
+
+    await fee.save();
+
     return res.status(200).json({
       message: "Fee structure updated successfully",
-      fee: updatedFee,
+      fee,
     });
+
   } catch (error) {
     console.log("error:", error);
 
@@ -100,22 +163,34 @@ async function updateFee(req, res) {
     });
   }
 }
+
 
 async function deleteFee(req, res) {
   try {
     const { id } = req.params;
 
-    const deletedFee = await feeModel.findByIdAndDelete(id);
+    const fee = await feeModel.findById(id);
 
-    if (!deletedFee) {
+    if (!fee) {
       return res.status(404).json({
         message: "Fee structure not found",
       });
     }
 
+    // Delete PDF from Cloudinary
+    if (fee.publicId) {
+      await cloudinary.uploader.destroy(fee.publicId, {
+        resource_type: "raw",
+      });
+    }
+
+    // Delete DB record
+    await feeModel.findByIdAndDelete(id);
+
     return res.status(200).json({
       message: "Fee structure deleted successfully",
     });
+
   } catch (error) {
     console.log("error:", error);
 
@@ -124,6 +199,7 @@ async function deleteFee(req, res) {
     });
   }
 }
+
 
 module.exports = {
   createFee,

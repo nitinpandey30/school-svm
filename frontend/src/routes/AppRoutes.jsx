@@ -3,7 +3,6 @@ import PublicLayout from "../layouts/PublicLayout";
 import Home from "../pages/public/Home";
 import Notices from "../pages/public/Notices";
 import Events from "../pages/public/Events";
-import FeeStructure from "../pages/public/FeeStructure";
 import Gallery from "../pages/public/Gallery";
 import Contact from "../pages/public/Contact";
 import About from "../pages/public/About";
@@ -27,7 +26,7 @@ function AppRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/notices" element={<Notices />} />
         <Route path="/events" element={<Events />} />
-        <Route path="/fees" element={<FeeStructure />} />
+       
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
       </Route>

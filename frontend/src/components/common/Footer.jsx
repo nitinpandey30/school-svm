@@ -165,7 +165,6 @@ function Footer() {
         <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between gap-3 text-sm text-slate-500">
           <p>© {currentYear} S.U.C.S.V.M.I.C. Banbasa. All Rights Reserved.</p>
 
-          <p>Shaheed Uttam Chand Saraswati Vidhya Mandir Inter College</p>
         </div>
       </div>
     </footer>

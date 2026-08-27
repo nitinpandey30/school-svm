@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import {
+  FileText,
+  Upload,
+  Trash2,
+  Eye,
+  Pencil,
+  X,
+} from "lucide-react";
 
 import {
   getFees,
@@ -10,30 +17,18 @@ import {
 
 function ManageFees() {
   const [fees, setFees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [academicYear, setAcademicYear] = useState("");
+  const [pdfFile, setPdfFile] = useState(null);
 
-  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
-
-  const [formData, setFormData] = useState({
-    className: "",
-    admissionFee: "",
-    tuitionFee: "",
-    annualFee: "",
-    examFee: "",
-    otherCharges: "0",
-  });
 
   const fetchFees = async () => {
     try {
-      const response = await getFees();
-
-      setFees(response.fees || []);
+      const data = await getFees();
+      setFees(data.fees || []);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -41,399 +36,375 @@ function ManageFees() {
     fetchFees();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const resetForm = () => {
-    setFormData({
-      className: "",
-      admissionFee: "",
-      tuitionFee: "",
-      annualFee: "",
-      examFee: "",
-      otherCharges: "0",
-    });
-
+    setAcademicYear("");
+    setPdfFile(null);
     setEditingId(null);
-    setShowForm(false);
+
+    const input = document.getElementById("feePdf");
+
+    if (input) {
+      input.value = "";
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setSaving(true);
+    if (!academicYear) {
+      alert("Academic year is required");
+      return;
+    }
+
+    // PDF is required only while creating
+    if (!editingId && !pdfFile) {
+      alert("Please select a PDF");
+      return;
+    }
+
+    if (pdfFile) {
+      if (pdfFile.type !== "application/pdf") {
+        alert("Only PDF files are allowed");
+        return;
+      }
+
+      if (pdfFile.size > 10 * 1024 * 1024) {
+        alert("PDF size must be less than 10 MB");
+        return;
+      }
+    }
 
     try {
-      const feeData = {
-        ...formData,
-        admissionFee: Number(formData.admissionFee),
-        tuitionFee: Number(formData.tuitionFee),
-        annualFee: Number(formData.annualFee),
-        examFee: Number(formData.examFee),
-        otherCharges: Number(formData.otherCharges || 0),
-      };
+      setLoading(true);
+
+      const formData = new FormData();
+
+      formData.append("academicYear", academicYear);
+
+      if (pdfFile) {
+        formData.append("pdf", pdfFile);
+      }
 
       if (editingId) {
-        await updateFee(editingId, feeData);
+        await updateFee(editingId, formData);
+        alert("Fee structure updated successfully");
       } else {
-        await createFee(feeData);
+        await createFee(formData);
+        alert("Fee structure uploaded successfully");
       }
 
       resetForm();
       fetchFees();
+
     } catch (error) {
       console.error(error);
 
       alert(
         error.response?.data?.message ||
           error.response?.data?.error ||
-          "Something went wrong."
+          "Something went wrong"
       );
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
   const handleEdit = (fee) => {
     setEditingId(fee._id);
+    setAcademicYear(fee.academicYear);
+    setPdfFile(null);
 
-    setFormData({
-      className: fee.className || "",
-      admissionFee: fee.admissionFee ?? "",
-      tuitionFee: fee.tuitionFee ?? "",
-      annualFee: fee.annualFee ?? "",
-      examFee: fee.examFee ?? "",
-      otherCharges: fee.otherCharges ?? 0,
+    const input = document.getElementById("feePdf");
+
+    if (input) {
+      input.value = "";
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
-
-    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
+    const confirmDelete = window.confirm(
       "Are you sure you want to delete this fee structure?"
     );
 
-    if (!confirmed) return;
+    if (!confirmDelete) return;
 
     try {
       await deleteFee(id);
+
+      alert("Fee structure deleted successfully");
+
       fetchFees();
+
     } catch (error) {
       console.error(error);
 
       alert(
         error.response?.data?.message ||
           error.response?.data?.error ||
-          "Unable to delete fee structure."
+          "Unable to delete fee structure"
       );
     }
   };
 
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Fee Structure
-          </h1>
+      <div className="mb-8">
+        <p className="text-blue-600 font-semibold text-sm">
+          ADMINISTRATION
+        </p>
 
-          <p className="text-slate-500 mt-2">
-            Manage class-wise school fees.
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold text-slate-900 mt-1">
+          Manage Fee Structure
+        </h1>
 
-        <button
-          onClick={() => {
-            setEditingId(null);
-
-            setFormData({
-              className: "",
-              admissionFee: "",
-              tuitionFee: "",
-              annualFee: "",
-              examFee: "",
-              otherCharges: "0",
-            });
-
-            setShowForm(true);
-          }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
-        >
-          <Plus size={19} />
-          Add Fee Structure
-        </button>
+        <p className="text-slate-500 mt-2">
+          Upload and manage fee structure PDFs for different academic years.
+        </p>
       </div>
 
+
       {/* Form */}
-      {showForm && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8">
 
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              {editingId ? "Edit Fee Structure" : "Add Fee Structure"}
-            </h2>
+        <div className="flex items-center justify-between mb-6">
 
+          <div className="flex items-center gap-3">
+
+            <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+              {editingId ? <Pencil size={20} /> : <Upload size={20} />}
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                {editingId
+                  ? "Edit Fee Structure"
+                  : "Upload Fee Structure"}
+              </h2>
+
+              <p className="text-sm text-slate-500">
+                {editingId
+                  ? "Update academic year or replace the PDF."
+                  : "Upload the fee structure PDF for an academic year."}
+              </p>
+            </div>
+
+          </div>
+
+          {editingId && (
             <button
+              type="button"
               onClick={resetForm}
-              className="text-slate-400 hover:text-slate-700"
+              className="p-2 text-slate-400 hover:text-slate-700"
+              title="Cancel Edit"
             >
               <X size={21} />
             </button>
+          )}
+
+        </div>
+
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Academic Year */}
+          <div>
+
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Academic Year
+            </label>
+
+            <input
+              type="text"
+              value={academicYear}
+              onChange={(e) => setAcademicYear(e.target.value)}
+              placeholder="e.g. 2026-27"
+              required
+              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Class */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Class
-              </label>
+          {/* PDF */}
+          <div>
 
-              <select
-                name="className"
-                value={formData.className}
-                onChange={handleChange}
-                required
-                disabled={!!editingId}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
-              >
-                <option value="">Select Class</option>
-                <option value="Class 6">Class 6</option>
-                <option value="Class 7">Class 7</option>
-                <option value="Class 8">Class 8</option>
-                <option value="Class 9">Class 9</option>
-                <option value="Class 10">Class 10</option>
-                <option value="Class 11">Class 11</option>
-                <option value="Class 12">Class 12</option>
-              </select>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              {editingId ? "Replace PDF" : "Fee Structure PDF"}
+            </label>
 
-              {editingId && (
-                <p className="text-xs text-slate-400 mt-2">
-                  Class cannot be changed while editing.
-                </p>
-              )}
-            </div>
+            <input
+              id="feePdf"
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setPdfFile(e.target.files[0])}
+              className="w-full border border-slate-300 rounded-lg px-4 py-2.5"
+            />
 
-            {/* Fee Fields */}
-            <div className="grid sm:grid-cols-2 gap-5">
+            <p className="text-xs text-slate-400 mt-2">
+              PDF only • Maximum size 10 MB
+            </p>
 
-              <FeeInput
-                label="Admission Fee"
-                name="admissionFee"
-                value={formData.admissionFee}
-                onChange={handleChange}
-              />
+            {editingId && (
+              <p className="text-xs text-blue-600 mt-1">
+                Leave empty if you only want to change the academic year.
+              </p>
+            )}
 
-              <FeeInput
-                label="Tuition Fee"
-                name="tuitionFee"
-                value={formData.tuitionFee}
-                onChange={handleChange}
-              />
+          </div>
 
-              <FeeInput
-                label="Annual Fee"
-                name="annualFee"
-                value={formData.annualFee}
-                onChange={handleChange}
-              />
 
-              <FeeInput
-                label="Exam Fee"
-                name="examFee"
-                value={formData.examFee}
-                onChange={handleChange}
-              />
+          {/* Buttons */}
+          <div className="flex gap-3">
 
-              <FeeInput
-                label="Other Charges"
-                name="otherCharges"
-                value={formData.otherCharges}
-                onChange={handleChange}
-                required={false}
-              />
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg font-medium transition"
+            >
+              {editingId ? <Pencil size={18} /> : <Upload size={18} />}
 
-            </div>
+              {loading
+                ? "Saving..."
+                : editingId
+                  ? "Update Fee Structure"
+                  : "Upload Fee Structure"}
+            </button>
 
-            {/* Buttons */}
-            <div className="flex gap-3">
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium"
-              >
-                {saving
-                  ? "Saving..."
-                  : editingId
-                    ? "Update Fee"
-                    : "Create Fee"}
-              </button>
-
+            {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium"
+                className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg font-medium transition"
               >
+                <X size={18} />
                 Cancel
               </button>
+            )}
 
-            </div>
+          </div>
 
-          </form>
-        </div>
-      )}
+        </form>
+      </div>
 
-      {/* Fee List */}
+
+      {/* Existing Fees */}
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
 
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h2 className="font-semibold text-slate-900">
-            Class-wise Fee Structure
+        <div className="p-6 border-b border-slate-200">
+
+          <h2 className="text-lg font-semibold text-slate-900">
+            Uploaded Fee Structures
           </h2>
+
+          <p className="text-sm text-slate-500 mt-1">
+            Manage existing fee structure documents.
+          </p>
+
         </div>
 
-        {loading ? (
-          <div className="p-8 text-center text-slate-500">
-            Loading fee structures...
+
+        {fees.length === 0 ? (
+
+          <div className="text-center py-16">
+
+            <FileText
+              size={45}
+              className="mx-auto text-slate-300 mb-3"
+            />
+
+            <p className="text-slate-500">
+              No fee structures uploaded yet.
+            </p>
+
           </div>
-        ) : fees.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            No fee structures found.
-          </div>
+
         ) : (
-          <div className="overflow-x-auto">
 
-            <table className="w-full text-sm">
+          <div className="divide-y divide-slate-100">
 
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="text-left px-6 py-4 font-semibold text-slate-700">
-                    Class
-                  </th>
+            {fees.map((fee) => (
 
-                  <th className="text-left px-6 py-4 font-semibold text-slate-700">
-                    Admission
-                  </th>
+              <div
+                key={fee._id}
+                className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
 
-                  <th className="text-left px-6 py-4 font-semibold text-slate-700">
-                    Tuition
-                  </th>
+                <div className="flex items-center gap-4">
 
-                  <th className="text-left px-6 py-4 font-semibold text-slate-700">
-                    Annual
-                  </th>
+                  <div className="w-11 h-11 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                    <FileText size={22} />
+                  </div>
 
-                  <th className="text-left px-6 py-4 font-semibold text-slate-700">
-                    Exam
-                  </th>
+                  <div>
 
-                  <th className="text-left px-6 py-4 font-semibold text-slate-700">
-                    Other
-                  </th>
+                    <h3 className="font-semibold text-slate-900">
+                      Academic Year {fee.academicYear}
+                    </h3>
 
-                  <th className="text-right px-6 py-4 font-semibold text-slate-700">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Uploaded{" "}
+                      {new Date(
+                        fee.createdAt
+                      ).toLocaleDateString("en-IN")}
+                    </p>
 
-              <tbody className="divide-y divide-slate-200">
+                  </div>
 
-                {fees.map((fee) => (
-                  <tr key={fee._id} className="hover:bg-slate-50">
+                </div>
 
-                    <td className="px-6 py-4 font-semibold text-slate-900">
-                      {fee.className}
-                    </td>
 
-                    <td className="px-6 py-4 text-slate-600">
-                      ₹{fee.admissionFee}
-                    </td>
+                <div className="flex items-center gap-2">
 
-                    <td className="px-6 py-4 text-slate-600">
-                      ₹{fee.tuitionFee}
-                    </td>
+                  {/* View */}
+                  <a
+                    href={fee.pdfUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium transition"
+                  >
+                    <Eye size={17} />
+                    View
+                  </a>
 
-                    <td className="px-6 py-4 text-slate-600">
-                      ₹{fee.annualFee}
-                    </td>
 
-                    <td className="px-6 py-4 text-slate-600">
-                      ₹{fee.examFee}
-                    </td>
+                  {/* Edit */}
+                  <button
+                    onClick={() => handleEdit(fee)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-sm font-medium transition"
+                  >
+                    <Pencil size={17} />
+                    Edit
+                  </button>
 
-                    <td className="px-6 py-4 text-slate-600">
-                      ₹{fee.otherCharges}
-                    </td>
 
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDelete(fee._id)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition"
+                  >
+                    <Trash2 size={17} />
+                    Delete
+                  </button>
 
-                        <button
-                          onClick={() => handleEdit(fee)}
-                          className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
-                          title="Edit"
-                        >
-                          <Pencil size={18} />
-                        </button>
+                </div>
 
-                        <button
-                          onClick={() => handleDelete(fee._id)}
-                          className="p-2 rounded-lg text-red-600 hover:bg-red-50"
-                          title="Delete"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+              </div>
 
-                      </div>
-                    </td>
-
-                  </tr>
-                ))}
-
-              </tbody>
-
-            </table>
+            ))}
 
           </div>
+
         )}
 
       </div>
-    </div>
-  );
-}
 
-function FeeInput({
-  label,
-  name,
-  value,
-  onChange,
-  required = true,
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
-        {label}
-      </label>
-
-      <input
-        type="number"
-        name={name}
-        value={value}
-        onChange={onChange}
-        min="0"
-        required={required}
-        placeholder={`Enter ${label.toLowerCase()}`}
-        className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-      />
     </div>
   );
 }

@@ -2,41 +2,21 @@ const mongoose = require("mongoose");
 
 const feeSchema = new mongoose.Schema(
   {
-    className: {
+    academicYear: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
 
-    admissionFee: {
-      type: Number,
+    pdfUrl: {
+      type: String,
       required: true,
-      min: 0,
     },
 
-    tuitionFee: {
-      type: Number,
+    publicId: {
+      type: String,
       required: true,
-      min: 0,
-    },
-
-    annualFee: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-
-    examFee: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-
-    otherCharges: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
   },
   {
