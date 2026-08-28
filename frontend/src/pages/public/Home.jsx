@@ -11,60 +11,106 @@ import {
   Image as ImageIcon,
   MapPin,
 } from "lucide-react";
+
 import { useEffect, useState } from "react";
 
+import { getHeroes } from "../../api/hero.api";
 import { getNotices } from "../../api/notice.api";
 import { getEvents } from "../../api/event.api";
 import { getGallery } from "../../api/gallery.api";
 
-const slides = [
-  {
-    image: "/school-hero.jpg",
-  },
-  {
-    image: "/school-hero-2.jpg",
-    title: "Learn. Grow. Achieve.",
-    subtitle: "Building Knowledge, Character and Confidence",
-  },
-  {
-    image: "/school-hero-3.jpg",
-    title: "A Place to Learn and Grow",
-    subtitle: "Education Beyond the Classroom",
-  },
-];
-
 function Home() {
+  /* =====================================================
+     HERO
+  ===================================================== */
+
+  const [heroes, setHeroes] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loadingHeroes, setLoadingHeroes] = useState(true);
+
+  /* =====================================================
+     NOTICES
+  ===================================================== */
 
   const [notices, setNotices] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [gallery, setGallery] = useState([]);
-
   const [loadingNotices, setLoadingNotices] = useState(true);
+
+  /* =====================================================
+     EVENTS
+  ===================================================== */
+
+  const [events, setEvents] = useState([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+
+  /* =====================================================
+     GALLERY
+  ===================================================== */
+
+  const [gallery, setGallery] = useState([]);
   const [loadingGallery, setLoadingGallery] = useState(true);
 
-  /* ================= HERO SLIDER ================= */
+  /* =====================================================
+     FETCH HEROES
+  ===================================================== */
 
   useEffect(() => {
+    const fetchHeroes = async () => {
+      try {
+        const response = await getHeroes();
+
+        const data = response?.heroes || [];
+
+        setHeroes(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Hero error:", error);
+        setHeroes([]);
+      } finally {
+        setLoadingHeroes(false);
+      }
+    };
+
+    fetchHeroes();
+  }, []);
+
+  /* =====================================================
+     HERO AUTO SLIDER
+  ===================================================== */
+
+  useEffect(() => {
+    if (heroes.length <= 1) return;
+
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % heroes.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [heroes.length]);
+
+  /* =====================================================
+     HERO NEXT
+  ===================================================== */
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    if (heroes.length === 0) return;
+
+    setCurrentSlide((prev) => (prev + 1) % heroes.length);
   };
 
+  /* =====================================================
+     HERO PREVIOUS
+  ===================================================== */
+
   const prevSlide = () => {
+    if (heroes.length === 0) return;
+
     setCurrentSlide(
-      (prev) => (prev - 1 + slides.length) % slides.length
+      (prev) => (prev - 1 + heroes.length) % heroes.length
     );
   };
 
-  /* ================= FETCH NOTICES ================= */
+  /* =====================================================
+     FETCH NOTICES
+  ===================================================== */
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -73,7 +119,9 @@ function Home() {
 
         const data = response?.data || response || [];
 
-        setNotices(Array.isArray(data) ? data.slice(0, 3) : []);
+        setNotices(
+          Array.isArray(data) ? data.slice(0, 3) : []
+        );
       } catch (error) {
         console.error("Notice error:", error);
         setNotices([]);
@@ -85,7 +133,9 @@ function Home() {
     fetchNotices();
   }, []);
 
-  /* ================= FETCH EVENTS ================= */
+  /* =====================================================
+     FETCH EVENTS
+  ===================================================== */
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -94,7 +144,9 @@ function Home() {
 
         const data = response?.data || response || [];
 
-        setEvents(Array.isArray(data) ? data.slice(0, 3) : []);
+        setEvents(
+          Array.isArray(data) ? data.slice(0, 3) : []
+        );
       } catch (error) {
         console.error("Event error:", error);
         setEvents([]);
@@ -106,7 +158,9 @@ function Home() {
     fetchEvents();
   }, []);
 
-  /* ================= FETCH GALLERY ================= */
+  /* =====================================================
+     FETCH GALLERY
+  ===================================================== */
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -119,7 +173,9 @@ function Home() {
           response ||
           [];
 
-        setGallery(Array.isArray(data) ? data.slice(0, 6) : []);
+        setGallery(
+          Array.isArray(data) ? data.slice(0, 6) : []
+        );
       } catch (error) {
         console.error("Gallery error:", error);
         setGallery([]);
@@ -134,110 +190,143 @@ function Home() {
   return (
     <div className="bg-white">
 
-      {/* ================= HERO ================= */}
+      {/* =====================================================
+          HERO
+      ===================================================== */}
 
       <section className="relative h-[450px] sm:h-[550px] lg:h-[650px] overflow-hidden">
 
-        {/* Background Image */}
+        {loadingHeroes ? (
 
-        <img
-          src={slides[currentSlide].image}
-          alt="School campus"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+          <HeroSkeleton />
 
-        {/* Overlay */}
+        ) : heroes.length === 0 ? (
 
-        <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+            <p className="text-slate-500">
+              No hero content available.
+            </p>
+          </div>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+        ) : (
 
-        {/* Hero Content */}
+          <>
+            {/* Hero Image */}
 
-        <div className="absolute inset-0 flex items-center">
+            <img
+              src={heroes[currentSlide]?.imageUrl}
+              alt={
+                heroes[currentSlide]?.title ||
+                "School campus"
+              }
+              className="absolute inset-0 w-full h-full object-cover"
+            />
 
-          <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12">
+            {/* Overlay */}
 
-            {(slides[currentSlide].title ||
-              slides[currentSlide].subtitle) && (
-              <div className="max-w-xl text-white">
+            <div className="absolute inset-0 bg-black/45" />
 
-                <p className="text-sm sm:text-base font-semibold text-red-300 mb-3">
-                  SHAHEED UTTAM CHAND SARASWATI VIDHYA MANDIR
-                </p>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                  {slides[currentSlide].title}
-                </h1>
+            {/* Hero Content */}
 
-                <p className="text-base sm:text-lg text-white/85 mt-5 leading-7">
-                  {slides[currentSlide].subtitle}
-                </p>
+            <div className="absolute inset-0 flex items-center">
 
-                <Link
-                  to="/about"
-                  className="inline-flex items-center gap-2 mt-7 bg-red-800 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
-                >
-                  Discover More
-                  <ArrowRight size={18} />
-                </Link>
+              <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12">
+
+                <div className="max-w-xl text-white">
+
+                  {heroes[currentSlide]?.subtitle && (
+                    <p className="text-sm sm:text-base font-semibold text-red-300 mb-3">
+                      {heroes[currentSlide].subtitle}
+                    </p>
+                  )}
+
+                  {heroes[currentSlide]?.title && (
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+                      {heroes[currentSlide].title}
+                    </h1>
+                  )}
+
+                  {heroes[currentSlide]?.buttonText && (
+                    <Link
+                      to={
+                        heroes[currentSlide]?.buttonLink ||
+                        "/about"
+                      }
+                      className="inline-flex items-center gap-2 mt-7 bg-red-800 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
+                    >
+                      {heroes[currentSlide].buttonText}
+
+                      <ArrowRight size={18} />
+                    </Link>
+                  )}
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Previous Button */}
+
+            {heroes.length > 1 && (
+              <button
+                onClick={prevSlide}
+                aria-label="Previous slide"
+                className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-10
+                w-10 h-10 sm:w-12 sm:h-12 rounded-full
+                bg-black/30 hover:bg-black/60 text-white
+                flex items-center justify-center transition"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            {/* Next Button */}
+
+            {heroes.length > 1 && (
+              <button
+                onClick={nextSlide}
+                aria-label="Next slide"
+                className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10
+                w-10 h-10 sm:w-12 sm:h-12 rounded-full
+                bg-black/30 hover:bg-black/60 text-white
+                flex items-center justify-center transition"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+
+            {/* Dots */}
+
+            {heroes.length > 1 && (
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+
+                {heroes.map((hero, index) => (
+                  <button
+                    key={hero._id}
+                    onClick={() => setCurrentSlide(index)}
+                    aria-label={`Go to slide ${index + 1}`}
+                    className={`h-2.5 rounded-full transition-all ${
+                      currentSlide === index
+                        ? "w-8 bg-white"
+                        : "w-2.5 bg-white/60"
+                    }`}
+                  />
+                ))}
 
               </div>
             )}
-
-          </div>
-
-        </div>
-
-        {/* Previous */}
-
-        <button
-          onClick={prevSlide}
-          aria-label="Previous slide"
-          className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-10
-          w-10 h-10 sm:w-12 sm:h-12 rounded-full
-          bg-black/30 hover:bg-black/60 text-white
-          flex items-center justify-center transition"
-        >
-          <ChevronLeft size={24} />
-        </button>
-
-        {/* Next */}
-
-        <button
-          onClick={nextSlide}
-          aria-label="Next slide"
-          className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10
-          w-10 h-10 sm:w-12 sm:h-12 rounded-full
-          bg-black/30 hover:bg-black/60 text-white
-          flex items-center justify-center transition"
-        >
-          <ChevronRight size={24} />
-        </button>
-
-        {/* Dots */}
-
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-              className={`h-2.5 rounded-full transition-all ${
-                currentSlide === index
-                  ? "w-8 bg-white"
-                  : "w-2.5 bg-white/60"
-              }`}
-            />
-          ))}
-
-        </div>
+          </>
+        )}
 
       </section>
 
 
-      {/* ================= STATS ================= */}
+      {/* =====================================================
+          STATS
+      ===================================================== */}
 
       <section className="relative -mt-12 z-20">
 
@@ -276,7 +365,9 @@ function Home() {
       </section>
 
 
-      {/* ================= NOTICES + ABOUT + EVENTS ================= */}
+      {/* =====================================================
+          NOTICES + ABOUT + EVENTS
+      ===================================================== */}
 
       <section className="py-16 bg-slate-50">
 
@@ -284,8 +375,9 @@ function Home() {
 
           <div className="grid lg:grid-cols-12 gap-6 items-stretch">
 
-
-            {/* ================= NOTICES ================= */}
+            {/* =================================================
+                NOTICES
+            ================================================= */}
 
             <div className="lg:col-span-3 bg-white border border-slate-200 shadow-sm">
 
@@ -300,7 +392,6 @@ function Home() {
                 </h2>
 
               </div>
-
 
               {loadingNotices ? (
 
@@ -349,7 +440,6 @@ function Home() {
 
               )}
 
-
               <div className="px-5 py-4">
 
                 <Link
@@ -364,7 +454,9 @@ function Home() {
             </div>
 
 
-            {/* ================= ABOUT ================= */}
+            {/* =================================================
+                ABOUT
+            ================================================= */}
 
             <div className="lg:col-span-6 bg-white border border-slate-200 shadow-md">
 
@@ -377,7 +469,6 @@ function Home() {
                 <div className="w-16 h-1 bg-red-800 mx-auto mt-3 mb-5" />
 
               </div>
-
 
               <div className="px-5">
 
@@ -392,7 +483,6 @@ function Home() {
                 </div>
 
               </div>
-
 
               <div className="px-5 py-5">
 
@@ -422,7 +512,9 @@ function Home() {
             </div>
 
 
-            {/* ================= EVENTS ================= */}
+            {/* =================================================
+                EVENTS
+            ================================================= */}
 
             <div className="lg:col-span-3 bg-white border border-slate-200 shadow-sm">
 
@@ -437,7 +529,6 @@ function Home() {
                 </h2>
 
               </div>
-
 
               {loadingEvents ? (
 
@@ -480,10 +571,13 @@ function Home() {
 
                         {event.location && (
                           <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
+
                             <MapPin size={13} />
+
                             <span className="truncate">
                               {event.location}
                             </span>
+
                           </div>
                         )}
 
@@ -496,7 +590,6 @@ function Home() {
                 ))
 
               )}
-
 
               <div className="px-5 py-4">
 
@@ -518,7 +611,9 @@ function Home() {
       </section>
 
 
-      {/* ================= GALLERY ================= */}
+      {/* =====================================================
+          GALLERY
+      ===================================================== */}
 
       <section className="py-16 bg-white">
 
@@ -623,7 +718,9 @@ function Home() {
       </section>
 
 
-      {/* ================= LOCATION ================= */}
+      {/* =====================================================
+          LOCATION
+      ===================================================== */}
 
       <section className="py-16 bg-slate-50">
 
@@ -645,7 +742,6 @@ function Home() {
             </p>
 
           </div>
-
 
           <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md">
 
@@ -669,7 +765,9 @@ function Home() {
 }
 
 
-/* ================= STAT COMPONENT ================= */
+/* =========================================================
+   STAT COMPONENT
+========================================================= */
 
 function Stat({ icon, value, label }) {
   return (
@@ -692,7 +790,9 @@ function Stat({ icon, value, label }) {
 }
 
 
-/* ================= DATE BOX ================= */
+/* =========================================================
+   DATE BOX
+========================================================= */
 
 function DateBox({ date }) {
   const parsedDate = new Date(date);
@@ -717,7 +817,9 @@ function DateBox({ date }) {
 }
 
 
-/* ================= DATE FORMAT ================= */
+/* =========================================================
+   DATE FORMAT
+========================================================= */
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString("en-IN", {
@@ -728,7 +830,42 @@ function formatDate(date) {
 }
 
 
-/* ================= NOTICE SKELETON ================= */
+/* =========================================================
+   HERO SKELETON
+========================================================= */
+
+function HeroSkeleton() {
+  return (
+    <div className="absolute inset-0 bg-slate-200 animate-pulse">
+
+      <div className="absolute inset-0 flex items-center">
+
+        <div className="max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-12">
+
+          <div className="max-w-xl space-y-4">
+
+            <div className="h-4 w-72 bg-slate-300 rounded" />
+
+            <div className="h-12 w-full bg-slate-300 rounded" />
+
+            <div className="h-12 w-4/5 bg-slate-300 rounded" />
+
+            <div className="h-10 w-36 bg-slate-300 rounded-lg mt-6" />
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+
+/* =========================================================
+   NOTICE SKELETON
+========================================================= */
 
 function NoticeSkeleton() {
   return (
@@ -762,7 +899,9 @@ function NoticeSkeleton() {
 }
 
 
-/* ================= EVENT SKELETON ================= */
+/* =========================================================
+   EVENT SKELETON
+========================================================= */
 
 function EventSkeleton() {
   return (
@@ -796,7 +935,9 @@ function EventSkeleton() {
 }
 
 
-/* ================= GALLERY SKELETON ================= */
+/* =========================================================
+   GALLERY SKELETON
+========================================================= */
 
 function GallerySkeleton() {
   return (
