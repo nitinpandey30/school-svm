@@ -18,6 +18,7 @@ import { getHeroes } from "../../api/hero.api";
 import { getNotices } from "../../api/notice.api";
 import { getEvents } from "../../api/event.api";
 import { getGallery } from "../../api/gallery.api";
+import { getStats } from "../../api/stat.api";
 
 function Home() {
   /* =====================================================
@@ -28,6 +29,8 @@ function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loadingHeroes, setLoadingHeroes] = useState(true);
 
+  const [stats, setStats] = useState(null);
+const [loadingStats, setLoadingStats] = useState(true);
   /* =====================================================
      NOTICES
   ===================================================== */
@@ -107,6 +110,23 @@ function Home() {
       (prev) => (prev - 1 + heroes.length) % heroes.length
     );
   };
+
+  useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const response = await getStats();
+
+      setStats(response?.stats || null);
+    } catch (error) {
+      console.error("Stats error:", error);
+      setStats(null);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  fetchStats();
+}, []);
 
   /* =====================================================
      FETCH NOTICES
@@ -324,45 +344,56 @@ function Home() {
       </section>
 
 
-      {/* =====================================================
-          STATS
-      ===================================================== */}
+      {/* ================= STATS ================= */}
 
-      <section className="relative -mt-12 z-20">
+<section className="relative -mt-12 z-20">
+  <div className="max-w-6xl mx-auto px-4">
 
-        <div className="max-w-6xl mx-auto px-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
+      {loadingStats ? (
+        <>
+          <StatSkeleton />
+          <StatSkeleton />
+          <StatSkeleton />
+          <StatSkeleton />
+        </>
+      ) : stats ? (
+        <>
+          <Stat
+            icon={<GraduationCap size={30} />}
+            value={stats.yearsOfExcellence}
+            label="Years of Excellence"
+          />
 
-            <Stat
-              icon={<GraduationCap size={30} />}
-              value="25+"
-              label="Years of Excellence"
-            />
+          <Stat
+            icon={<Users size={30} />}
+            value={stats.students}
+            label="Students"
+          />
 
-            <Stat
-              icon={<Users size={30} />}
-              value="1000+"
-              label="Students"
-            />
+          <Stat
+            icon={<BookOpen size={30} />}
+            value={stats.teachers}
+            label="Teachers"
+          />
 
-            <Stat
-              icon={<BookOpen size={30} />}
-              value="50+"
-              label="Teachers"
-            />
-
-            <Stat
-              icon={<Trophy size={30} />}
-              value="100+"
-              label="Achievements"
-            />
-
-          </div>
-
+          <Stat
+            icon={<Trophy size={30} />}
+            value={stats.achievements}
+            label="Achievements"
+          />
+        </>
+      ) : (
+        <div className="col-span-2 lg:col-span-4 p-8 text-center text-slate-500">
+          Stats unavailable
         </div>
+      )}
 
-      </section>
+    </div>
+
+  </div>
+</section>
 
 
       {/* =====================================================
@@ -768,6 +799,20 @@ function Home() {
 /* =========================================================
    STAT COMPONENT
 ========================================================= */
+
+function StatSkeleton() {
+  return (
+    <div className="p-6 text-center animate-pulse border-b lg:border-b-0 lg:border-r border-slate-100">
+      
+      <div className="w-8 h-8 mx-auto bg-slate-200 rounded-full mb-3" />
+
+      <div className="h-7 w-16 bg-slate-200 rounded mx-auto" />
+
+      <div className="h-4 w-28 bg-slate-200 rounded mx-auto mt-2" />
+
+    </div>
+  );
+}
 
 function Stat({ icon, value, label }) {
   return (

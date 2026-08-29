@@ -6,6 +6,7 @@ import Events from "../pages/public/Events";
 import Gallery from "../pages/public/Gallery";
 import Contact from "../pages/public/Contact";
 import About from "../pages/public/About";
+// Admin Routes
 import Login from "../pages/admin/Login";
 import ProtectedRoute from "./ProtectedRoutes";
 import Dashboard from "../pages/admin/Dashboard";
@@ -15,6 +16,8 @@ import ManageEvents from "../pages/admin/ManageEvents";
 import ManageFees from "../pages/admin/ManageFees";
 import ManageGallery from "../pages/admin/ManageGallery";
 import ManageMessages from "../pages/admin/ManageMessages";
+import ManageStats from "../pages/admin/ManageStats";
+import ManageHeroes from "../pages/admin/ManageHeroes";
 
 
 function AppRoutes() {
@@ -48,6 +51,8 @@ function AppRoutes() {
         <Route path="fees" element={<ManageFees />} />
         <Route path="gallery" element={<ManageGallery />} />
         <Route path="messages" element={<ManageMessages />} />
+        <Route path="stats" element={<ManageStats/>} />
+        <Route path="heroes" element={<ManageHeroes/>} />
       </Route>
     </Routes>
   );

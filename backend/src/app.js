@@ -7,6 +7,7 @@ const noticeRoute = require('../src/routes/notice.route');
 const userRoute = require('../src/routes/user.route');
 const feeRoute = require('../src/routes/fee.route');
 const heroRoute = require('../src/routes/hero.route');
+const statRoute = require('../src/routes/stat.route');
 
 
 const app = express()
@@ -27,6 +28,7 @@ app.use("/api/notice", noticeRoute)
 app.use("/api/fee", feeRoute)
 app.use("/api/user", userRoute)
 app.use("/api/hero", heroRoute)
+app.use("/api/stat", statRoute)
 
 
 

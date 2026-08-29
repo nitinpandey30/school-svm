@@ -6,6 +6,8 @@ import {
   Images,
   Mail,
   LogOut,
+  ChartBar,
+  House
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -25,6 +27,16 @@ function AdminSidebar() {
       name: "Dashboard",
       path: "/admin/dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      name: "Heroes",
+      path: "/admin/heroes",
+      icon: House,
+    },
+    {
+      name: "Stats",
+      path: "/admin/stats",
+      icon: ChartBar
     },
     {
       name: "Notices",
@@ -51,6 +63,7 @@ function AdminSidebar() {
       path: "/admin/messages",
       icon: Mail,
     },
+   
   ];
 
   return (

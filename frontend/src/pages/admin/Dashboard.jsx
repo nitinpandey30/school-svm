@@ -5,6 +5,8 @@ import {
   Images,
   Mail,
   ArrowRight,
+  ChartBar,
+  House,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -13,6 +15,18 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const cards = [
+     {
+      title: "Heroes",
+      description: "Update Hero",
+      icon: House,
+      path: "/admin/heroes",
+    },
+     {
+      title: "Stats",
+      description: "Update Stats",
+      icon: ChartBar,
+      path: "/admin/stats",
+    },
     {
       title: "Notices",
       description: "Manage school notices",
@@ -37,6 +51,7 @@ function Dashboard() {
       icon: Images,
       path: "/admin/gallery",
     },
+   
     {
       title: "Messages",
       description: "View contact messages",
