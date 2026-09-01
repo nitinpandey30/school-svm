@@ -6,6 +6,7 @@ import Events from "../pages/public/Events";
 import Gallery from "../pages/public/Gallery";
 import Contact from "../pages/public/Contact";
 import About from "../pages/public/About";
+import EventDetails from "../pages/public/EventDetails";
 // Admin Routes
 import Login from "../pages/admin/Login";
 import ProtectedRoute from "./ProtectedRoutes";
@@ -20,6 +21,7 @@ import ManageStats from "../pages/admin/ManageStats";
 import ManageHeroes from "../pages/admin/ManageHeroes";
 
 
+
 function AppRoutes() {
   return (
     <Routes>
@@ -32,6 +34,7 @@ function AppRoutes() {
        
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/events/:id" element={<EventDetails />} />
       </Route>
 
       {/* Admin */}

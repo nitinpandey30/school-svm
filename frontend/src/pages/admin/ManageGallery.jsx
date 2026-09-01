@@ -51,11 +51,24 @@ function ManageGallery() {
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
 
-    setImages(selectedFiles);
+    setImages((prev) => [...prev, ...selectedFiles]);
 
-    const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+    const newPreviews = selectedFiles.map((file) => URL.createObjectURL(file));
 
-    setPreviewImages(previews);
+    setPreviewImages((prev) => [...prev, ...newPreviews]);
+
+    // Same file ko dobara select karne ki permission
+    e.target.value = "";
+  };
+
+  const handleRemoveSelectedImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+
+    setPreviewImages((prev) => {
+      URL.revokeObjectURL(prev[index]);
+
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const resetForm = () => {
@@ -112,21 +125,19 @@ function ManageGallery() {
   };
 
   const handleEdit = (item) => {
-  setEditingId(item._id);
+    setEditingId(item._id);
 
-  setFormData({
-    title: item.title || "",
-    date: item.date
-      ? new Date(item.date).toISOString().split("T")[0]
-      : "",
-  });
+    setFormData({
+      title: item.title || "",
+      date: item.date ? new Date(item.date).toISOString().split("T")[0] : "",
+    });
 
-  setExistingImages(item.images || []);
-  setImages([]);
-  setPreviewImages([]);
+    setExistingImages(item.images || []);
+    setImages([]);
+    setPreviewImages([]);
 
-  setShowForm(true);
-};
+    setShowForm(true);
+  };
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
@@ -150,37 +161,30 @@ function ManageGallery() {
   };
 
   const handleRemoveImage = async (imageId) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to remove this image?"
-  );
-
-  if (!confirmed) return;
-
-  try {
-    const response = await deleteGalleryImage(
-      editingId,
-      imageId
+    const confirmed = window.confirm(
+      "Are you sure you want to remove this image?",
     );
 
-    setExistingImages(response.gallery.images);
+    if (!confirmed) return;
 
-    setGallery((prev) =>
-      prev.map((item) =>
-        item._id === editingId
-          ? response.gallery
-          : item
-      )
-    );
-  } catch (error) {
-    console.error(error);
+    try {
+      const response = await deleteGalleryImage(editingId, imageId);
 
-    alert(
-      error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Unable to delete image."
-    );
-  }
-};
+      setExistingImages(response.gallery.images);
+
+      setGallery((prev) =>
+        prev.map((item) => (item._id === editingId ? response.gallery : item)),
+      );
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Unable to delete image.",
+      );
+    }
+  };
 
   return (
     <div className="p-6 sm:p-8">
@@ -268,35 +272,35 @@ function ManageGallery() {
             </div>
 
             {editingId && existingImages.length > 0 && (
-  <div>
-    <p className="text-sm font-medium text-slate-700 mb-3">
-      Existing Images
-    </p>
+              <div>
+                <p className="text-sm font-medium text-slate-700 mb-3">
+                  Existing Images
+                </p>
 
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      {existingImages.map((image) => (
-        <div
-          key={image._id}
-          className="relative aspect-square rounded-lg overflow-hidden bg-slate-100"
-        >
-          <img
-            src={image.url}
-            alt={formData.title}
-            className="w-full h-full object-cover"
-          />
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {existingImages.map((image) => (
+                    <div
+                      key={image._id}
+                      className="relative aspect-square rounded-lg overflow-hidden bg-slate-100"
+                    >
+                      <img
+                        src={image.url}
+                        alt={formData.title}
+                        className="w-full h-full object-cover"
+                      />
 
-          <button
-            type="button"
-            onClick={() => handleRemoveImage(image._id)}
-            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(image._id)}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Image Upload */}
             <div>
@@ -335,14 +339,24 @@ function ManageGallery() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {previewImages.map((image, index) => (
                     <div
-                      key={index}
-                      className="aspect-square rounded-lg overflow-hidden bg-slate-100"
+                      key={image}
+                      className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 group"
                     >
                       <img
                         src={image}
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSelectedImage(index)}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                        title="Remove image"
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -376,74 +390,80 @@ function ManageGallery() {
       )}
 
       {/* Gallery Albums */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h2 className="font-semibold text-slate-900">Gallery Albums</h2>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center text-slate-500">
-            Loading gallery...
+      {!showForm && (
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h2 className="font-semibold text-slate-900">Gallery Albums</h2>
           </div>
-        ) : gallery.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            No gallery albums found.
-          </div>
-        ) : (
-          <div className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gallery.map((item) => (
-              <div
-                key={item._id}
-                className="border border-slate-200 rounded-xl overflow-hidden bg-white"
-              >
-                {/* Album Images */}
-                <div className="grid grid-cols-2 h-48 bg-slate-100">
-                  {item.images?.slice(0, 4).map((image) => (
-                    <img
-                      key={image._id}
-                      src={image.url}
-                      alt={item.title}
-                      className="w-full h-24 object-cover"
-                    />
-                  ))}
-                </div>
 
-                {/* Album Info */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-slate-900">{item.title}</h3>
+          {loading ? (
+            <div className="p-8 text-center text-slate-500">
+              Loading gallery...
+            </div>
+          ) : gallery.length === 0 ? (
+            <div className="p-8 text-center text-slate-500">
+              No gallery albums found.
+            </div>
+          ) : (
+            <div className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gallery.map((item) => (
+                <div
+                  key={item._id}
+                  className="border border-slate-200 rounded-xl overflow-hidden bg-white"
+                >
+                  {/* Album Images */}
+                  <div className="grid grid-cols-2 h-48 bg-slate-100">
+                    {item.images?.slice(0, 4).map((image) => (
+                      <img
+                        key={image._id}
+                        src={image.url}
+                        alt={item.title}
+                        className="w-full h-24 object-cover"
+                      />
+                    ))}
+                  </div>
 
-                  <p className="text-sm text-slate-500 mt-1">
-                    {item.images?.length || 0} images
-                  </p>
+                  {/* Album Info */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-slate-900">
+                      {item.title}
+                    </h3>
 
-                  <p className="text-xs text-slate-400 mt-2">
-                    {item.date ? new Date(item.date).toLocaleDateString() : ""}
-                  </p>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {item.images?.length || 0} images
+                    </p>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 text-sm font-medium"
-                    >
-                      <Pencil size={16} />
-                      Edit
-                    </button>
+                    <p className="text-xs text-slate-400 mt-2">
+                      {item.date
+                        ? new Date(item.date).toLocaleDateString()
+                        : ""}
+                    </p>
 
-                    <button
-                      onClick={() => handleDelete(item._id)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 text-sm font-medium"
-                    >
-                      <Trash2 size={16} />
-                      Delete
-                    </button>
+                    {/* Actions */}
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 text-sm font-medium"
+                      >
+                        <Pencil size={16} />
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 text-sm font-medium"
+                      >
+                        <Trash2 size={16} />
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const eventModel = require("../models/event.model");
 const cloudinary = require("../config/cloudinary");
 
@@ -99,6 +100,37 @@ async function getAllEvents(req, res) {
     });
   } catch (error) {
     console.log("Get all events error:", error);
+
+    return res.status(500).json({
+      error: "Server Error",
+    });
+  }
+}
+
+async function getEventById(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid event ID",
+      });
+    }
+
+    const event = await eventModel.findById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found",
+      });
+    }
+
+    return res.status(200).json({
+      event,
+    });
+
+  } catch (error) {
+    console.log("Get event by id error:", error);
 
     return res.status(500).json({
       error: "Server Error",
@@ -243,6 +275,7 @@ module.exports = {
   createEvent,
   getActiveEvents,
   getAllEvents,
+  getEventById,
   updateEvent,
   deleteEvent,
 };

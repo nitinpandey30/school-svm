@@ -6,6 +6,12 @@ export const getEvents = async () => {
   return response.data;
 };
 
+// Public - single event
+export const getEventById = async (id) => {
+  const response = await axiosInstance.get(`/event/${id}`);
+  return response.data;
+};
+
 // Admin - all events
 export const getAllEvents = async () => {
   const response = await axiosInstance.get("/event/all");

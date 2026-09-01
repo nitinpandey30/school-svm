@@ -1,8 +1,18 @@
-import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Upload,
+  Image as ImageIcon,
+  CalendarDays,
+  MapPin,
+  GripVertical,
+} from "lucide-react";
 
 import {
-  getEvents,
+  getAllEvents,
   createEvent,
   updateEvent,
   deleteEvent,
@@ -10,27 +20,45 @@ import {
 
 function ManageEvents() {
   const [events, setEvents] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [poster, setPoster] = useState(null);
+  const [posterPreview, setPosterPreview] = useState("");
+
+  const fileInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
     shortDescription: "",
+    description: "",
     date: "",
     location: "",
+    isActive: true,
+    order: 0,
   });
+
+  // =================================================
+  // FETCH EVENTS
+  // =================================================
 
   const fetchEvents = async () => {
     try {
-      const response = await getEvents();
+      setLoading(true);
 
-      setEvents(response.data || []);
+      const response = await getAllEvents();
+
+      const data = response?.events || response?.data || response || [];
+
+      setEvents(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error(error);
+      console.error("Fetch events error:", error);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -40,148 +68,377 @@ function ManageEvents() {
     fetchEvents();
   }, []);
 
+  // =================================================
+  // FORM CHANGE
+  // =================================================
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value, type, checked } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
+
+  // =================================================
+  // POSTER CHANGE
+  // =================================================
+
+  const handlePosterChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // 5MB validation
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Poster size must be less than 5MB.");
+      e.target.value = "";
+      return;
+    }
+
+    // Image validation
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image.");
+      e.target.value = "";
+      return;
+    }
+
+    setPoster(file);
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setPosterPreview(previewUrl);
+  };
+
+  // =================================================
+  // RESET FORM
+  // =================================================
 
   const resetForm = () => {
+    if (posterPreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(posterPreview);
+    }
+
     setFormData({
       title: "",
-      description: "",
       shortDescription: "",
+      description: "",
       date: "",
       location: "",
+      isActive: true,
+      order: 0,
     });
 
+    setPoster(null);
+    setPosterPreview("");
     setEditingId(null);
     setShowForm(false);
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setSaving(true);
-
-    try {
-      if (editingId) {
-        await updateEvent(editingId, formData);
-      } else {
-        await createEvent(formData);
-      }
-
-      resetForm();
-      fetchEvents();
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Something went wrong."
-      );
-    } finally {
-      setSaving(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
+
+  // =================================================
+  // OPEN CREATE FORM
+  // =================================================
+
+  const openCreateForm = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
+  // =================================================
+  // OPEN EDIT FORM
+  // =================================================
 
   const handleEdit = (event) => {
     setEditingId(event._id);
 
     setFormData({
       title: event.title || "",
-      description: event.description || "",
       shortDescription: event.shortDescription || "",
-      date: event.date
-        ? new Date(event.date).toISOString().split("T")[0]
-        : "",
+      description: event.description || "",
+      date: event.date ? new Date(event.date).toISOString().split("T")[0] : "",
       location: event.location || "",
+      isActive: event.isActive ?? true,
+      order: event.order ?? 0,
     });
 
+    setPoster(null);
+    setPosterPreview(event.imageUrl || "");
+
     setShowForm(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
+
+  // =================================================
+  // SUBMIT
+  // =================================================
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!editingId && !poster) {
+      alert("Please upload an event poster.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const data = new FormData();
+
+      data.append("title", formData.title);
+      data.append("shortDescription", formData.shortDescription);
+      data.append("description", formData.description);
+      data.append("date", formData.date);
+      data.append("location", formData.location);
+      data.append("isActive", String(formData.isActive));
+      data.append("order", String(formData.order || 0));
+
+      // Only send poster if selected
+      if (poster) {
+        data.append("image", poster);
+      }
+
+      if (editingId) {
+        await updateEvent(editingId, data);
+      } else {
+        await createEvent(data);
+      }
+
+      alert(
+        editingId
+          ? "Event updated successfully."
+          : "Event created successfully.",
+      );
+
+      resetForm();
+
+      await fetchEvents();
+    } catch (error) {
+      console.error("Save event error:", error);
+
+      alert(
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Unable to save event.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // =================================================
+  // DELETE
+  // =================================================
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this event?"
+      "Are you sure you want to delete this event?\n\nThe event poster will also be removed.",
     );
 
     if (!confirmed) return;
 
     try {
+      setDeletingId(id);
+
       await deleteEvent(id);
-      fetchEvents();
+
+      setEvents((prev) => prev.filter((event) => event._id !== id));
+
+      alert("Event deleted successfully.");
     } catch (error) {
-      console.error(error);
+      console.error("Delete event error:", error);
 
       alert(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Unable to delete event."
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Unable to delete event.",
       );
+    } finally {
+      setDeletingId(null);
     }
   };
 
-  return (
-    <div className="p-6 sm:p-8">
+  // =================================================
+  // REMOVE SELECTED POSTER
+  // =================================================
 
-      {/* Header */}
+  const removePoster = () => {
+    if (posterPreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(posterPreview);
+    }
+
+    setPoster(null);
+
+    // If editing, keep old image preview.
+    // If creating, remove preview completely.
+    const currentEvent = events.find((event) => event._id === editingId);
+
+    setPosterPreview(editingId ? currentEvent?.imageUrl || "" : "");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // =================================================
+  // RENDER
+  // =================================================
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Events
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
+            Administration
+          </p>
+
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
+            Event Management
           </h1>
 
-          <p className="text-slate-500 mt-2">
-            Create and manage school events.
+          <p className="text-sm sm:text-base text-slate-500 mt-2">
+            Create, update and manage school events.
           </p>
         </div>
 
         <button
-          onClick={() => {
-            setEditingId(null);
-
-            setFormData({
-              title: "",
-              description: "",
-              shortDescription: "",
-              date: "",
-              location: "",
-            });
-
-            setShowForm(true);
-          }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+          onClick={openCreateForm}
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold transition shadow-sm"
         >
           <Plus size={19} />
           Add Event
         </button>
       </div>
 
-      {/* Form */}
-      {showForm && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8">
+      {/* =================================================
+          FORM
+      ================================================= */}
 
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-slate-900">
-              {editingId ? "Edit Event" : "Add New Event"}
-            </h2>
+      {showForm && (
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-8 overflow-hidden">
+          {/* Form Header */}
+
+          <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                {editingId ? "Edit Event" : "Create New Event"}
+              </h2>
+
+              <p className="text-sm text-slate-500 mt-1">
+                Add event information and poster.
+              </p>
+            </div>
 
             <button
+              type="button"
               onClick={resetForm}
-              className="text-slate-400 hover:text-slate-700"
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
             >
-              <X size={21} />
+              <X size={20} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form */}
 
-            {/* Title */}
+          <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
+            {/* =================================================
+                POSTER
+            ================================================= */}
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Event Poster
+                {!editingId && <span className="text-red-500 ml-1">*</span>}
+              </label>
+
+              <div className="grid md:grid-cols-[280px_1fr] gap-5">
+                {/* Preview */}
+
+                <div className="relative aspect-[16/10] md:aspect-[4/3] bg-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+                  {posterPreview ? (
+                    <>
+                      <img
+                        src={posterPreview}
+                        alt="Event poster preview"
+                        className="w-full h-full object-cover"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={removePoster}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition"
+                        title="Remove poster"
+                      >
+                        <X size={16} />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                      <ImageIcon size={40} />
+                      <p className="text-sm mt-2">No poster selected</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload */}
+
+                <div className="flex flex-col justify-center">
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:border-red-400 hover:bg-red-50/30 transition"
+                  >
+                    <Upload size={30} className="mx-auto text-slate-400" />
+
+                    <p className="font-semibold text-slate-700 mt-3">
+                      {poster ? poster.name : "Upload event poster"}
+                    </p>
+
+                    <p className="text-xs text-slate-400 mt-1">
+                      PNG, JPG or WEBP · Maximum 5MB
+                    </p>
+
+                    <span className="inline-block mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium text-slate-700">
+                      Choose Image
+                    </span>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handlePosterChange}
+                    className="hidden"
+                  />
+
+                  {editingId && (
+                    <p className="text-xs text-slate-400 mt-2">
+                      Leave the image unchanged if you don't want to replace the
+                      current poster.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* =================================================
+                TITLE
+            ================================================= */}
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Event Title
               </label>
 
@@ -191,14 +448,18 @@ function ManageEvents() {
                 value={formData.title}
                 onChange={handleChange}
                 required
-                placeholder="Enter event title"
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                maxLength={150}
+                placeholder="e.g. Annual Sports Day"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-red-700/20 focus:border-red-700 transition"
               />
             </div>
 
-            {/* Short Description */}
+            {/* =================================================
+                SHORT DESCRIPTION
+            ================================================= */}
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Short Description
               </label>
 
@@ -208,15 +469,23 @@ function ManageEvents() {
                 value={formData.shortDescription}
                 onChange={handleChange}
                 required
-                placeholder="Enter a short description"
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                maxLength={250}
+                placeholder="A short summary shown on event cards"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-red-700/20 focus:border-red-700 transition"
               />
+
+              <p className="text-xs text-slate-400 mt-1">
+                Keep this short. It appears on the Events page.
+              </p>
             </div>
 
-            {/* Description */}
+            {/* =================================================
+                DESCRIPTION
+            ================================================= */}
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Description
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Full Description
               </label>
 
               <textarea
@@ -224,17 +493,19 @@ function ManageEvents() {
                 value={formData.description}
                 onChange={handleChange}
                 required
-                rows="5"
-                placeholder="Write event details..."
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none resize-none focus:ring-2 focus:ring-blue-500"
+                rows={6}
+                placeholder="Write complete details about the event..."
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none resize-none focus:ring-2 focus:ring-red-700/20 focus:border-red-700 transition"
               />
             </div>
 
-            {/* Date + Location */}
-            <div className="grid sm:grid-cols-2 gap-5">
+            {/* =================================================
+                DATE + LOCATION
+            ================================================= */}
 
+            <div className="grid sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Event Date
                 </label>
 
@@ -244,12 +515,12 @@ function ManageEvents() {
                   value={formData.date}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-red-700/20 focus:border-red-700 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Location
                 </label>
 
@@ -259,125 +530,285 @@ function ManageEvents() {
                   value={formData.location}
                   onChange={handleChange}
                   required
-                  placeholder="Enter event location"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. School Auditorium"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-red-700/20 focus:border-red-700 transition"
                 />
               </div>
-
             </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3">
+            {/* =================================================
+                STATUS + ORDER
+            ================================================= */}
 
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium"
-              >
-                {saving
-                  ? "Saving..."
-                  : editingId
-                    ? "Update Event"
-                    : "Create Event"}
-              </button>
+            <div className="grid sm:grid-cols-2 gap-5">
+              {/* Active */}
 
+              <div className="border border-slate-200 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-slate-800">Event Status</p>
+
+                    <p className="text-xs text-slate-400 mt-1">
+                      Active events are visible publicly.
+                    </p>
+                  </div>
+
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="isActive"
+                      checked={formData.isActive}
+                      onChange={handleChange}
+                      className="sr-only peer"
+                    />
+
+                    <div className="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:bg-green-600 transition" />
+
+                    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5" />
+                  </label>
+                </div>
+
+                <p
+                  className={`text-xs font-semibold mt-3 ${
+                    formData.isActive ? "text-green-600" : "text-slate-400"
+                  }`}
+                >
+                  {formData.isActive ? "Active" : "Inactive"}
+                </p>
+              </div>
+
+              {/* Order */}
+
+              <div className="border border-slate-200 rounded-xl p-4">
+                <label className="block font-semibold text-slate-800 mb-2">
+                  Display Order
+                </label>
+
+                <div className="flex items-center gap-3">
+                  <GripVertical size={19} className="text-slate-400" />
+
+                  <input
+                    type="number"
+                    name="order"
+                    value={formData.order}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-red-700/20 focus:border-red-700"
+                  />
+                </div>
+
+                <p className="text-xs text-slate-400 mt-2">
+                  Lower numbers appear first.
+                </p>
+              </div>
+            </div>
+
+            {/* =================================================
+                FORM BUTTONS
+            ================================================= */}
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium"
+                disabled={saving}
+                className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition disabled:opacity-50"
               >
                 Cancel
               </button>
 
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-6 py-3 rounded-xl bg-red-800 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold transition"
+              >
+                {saving
+                  ? editingId
+                    ? "Updating..."
+                    : "Creating..."
+                  : editingId
+                    ? "Update Event"
+                    : "Create Event"}
+              </button>
             </div>
-
           </form>
         </div>
       )}
 
-      {/* Events List */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      {!showForm && (
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          {/* List Header */}
 
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h2 className="font-semibold text-slate-900">
-            All Events
-          </h2>
-        </div>
+          <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-slate-900">All Events</h2>
 
-        {loading ? (
-          <div className="p-8 text-center text-slate-500">
-            Loading events...
+              {!loading && (
+                <p className="text-xs text-slate-400 mt-1">
+                  {events.length} {events.length === 1 ? "event" : "events"}
+                </p>
+              )}
+            </div>
           </div>
-        ) : events.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            No events found.
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-200">
 
-            {events.map((event) => (
-              <div
-                key={event._id}
-                className="p-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4"
-              >
+          {/* Loading */}
 
-                <div className="min-w-0">
+          {loading && (
+            <div className="divide-y divide-slate-100">
+              {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="p-5 flex gap-4 animate-pulse">
+                  <div className="w-28 h-20 rounded-xl bg-slate-200 shrink-0" />
 
-                  <h3 className="font-semibold text-slate-900">
-                    {event.title}
-                  </h3>
-
-                  <p className="text-sm text-slate-600 mt-2">
-                    {event.shortDescription}
-                  </p>
-
-                  <p className="text-sm text-slate-500 mt-2">
-                    {event.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-4 mt-3 text-xs text-slate-400">
-                    <span>
-                      📅{" "}
-                      {event.date
-                        ? new Date(event.date).toLocaleDateString()
-                        : "No date"}
-                    </span>
-
-                    <span>
-                      📍 {event.location}
-                    </span>
+                  <div className="flex-1 space-y-3">
+                    <div className="h-4 w-1/3 bg-slate-200 rounded" />
+                    <div className="h-3 w-2/3 bg-slate-200 rounded" />
+                    <div className="h-3 w-1/2 bg-slate-200 rounded" />
                   </div>
-
                 </div>
+              ))}
+            </div>
+          )}
 
-                <div className="flex items-center gap-2 shrink-0">
+          {/* Empty */}
 
-                  <button
-                    onClick={() => handleEdit(event)}
-                    className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
-                    title="Edit"
-                  >
-                    <Pencil size={18} />
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(event._id)}
-                    className="p-2 rounded-lg text-red-600 hover:bg-red-50"
-                    title="Delete"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-
-                </div>
-
+          {!loading && events.length === 0 && (
+            <div className="py-20 text-center px-5">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 mx-auto flex items-center justify-center">
+                <CalendarDays size={28} className="text-slate-400" />
               </div>
-            ))}
 
-          </div>
-        )}
+              <h3 className="font-semibold text-slate-700 mt-4">
+                No events found
+              </h3>
 
-      </div>
+              <p className="text-sm text-slate-400 mt-1">
+                Create your first school event to get started.
+              </p>
 
+              <button
+                onClick={openCreateForm}
+                className="inline-flex items-center gap-2 mt-5 px-4 py-2.5 bg-red-800 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition"
+              >
+                <Plus size={17} />
+                Add Event
+              </button>
+            </div>
+          )}
+
+          {/* Events */}
+
+          {!loading && events.length > 0 && (
+            <div className="divide-y divide-slate-100">
+              {events.map((event) => {
+                const eventDate = event.date ? new Date(event.date) : null;
+
+                const validDate = eventDate && !isNaN(eventDate.getTime());
+
+                return (
+                  <div
+                    key={event._id}
+                    className="p-4 sm:p-5 hover:bg-slate-50/70 transition"
+                  >
+                    <div className="flex flex-col lg:flex-row gap-5 lg:items-center">
+                      {/* Poster */}
+
+                      <div className="w-full lg:w-36 h-48 lg:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                        {event.imageUrl ? (
+                          <img
+                            src={event.imageUrl}
+                            alt={event.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon size={28} className="text-slate-300" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-bold text-slate-900">
+                            {event.title}
+                          </h3>
+
+                          <span
+                            className={`text-[11px] font-semibold px-2 py-1 rounded-full ${
+                              event.isActive
+                                ? "bg-green-100 text-green-700"
+                                : "bg-slate-100 text-slate-500"
+                            }`}
+                          >
+                            {event.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+
+                        {event.shortDescription && (
+                          <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                            {event.shortDescription}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-x-5 gap-y-2 mt-3 text-xs text-slate-400">
+                          {validDate && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <CalendarDays size={14} />
+
+                              {eventDate.toLocaleDateString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                          )}
+
+                          {event.location && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <MapPin size={14} />
+
+                              {event.location}
+                            </span>
+                          )}
+
+                          <span>Order: {event.order ?? 0}</span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+
+                      <div className="flex items-center gap-2 lg:self-center">
+                        <button
+                          onClick={() => handleEdit(event)}
+                          className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition text-sm font-semibold"
+                        >
+                          <Pencil size={16} />
+                          <span className="hidden sm:inline">Edit</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(event._id)}
+                          disabled={deletingId === event._id}
+                          className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition text-sm font-semibold"
+                        >
+                          <Trash2 size={16} />
+
+                          <span className="hidden sm:inline">
+                            {deletingId === event._id
+                              ? "Deleting..."
+                              : "Delete"}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
