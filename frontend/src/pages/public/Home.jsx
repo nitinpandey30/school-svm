@@ -588,46 +588,62 @@ function Home() {
     GALLERY
 ===================================================== */}
 
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* ================= HEADER ================= */}
+    <section className="py-12 sm:py-16 bg-white">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="text-center mb-10">
-            <p className="text-red-800 font-semibold">SCHOOL MOMENTS</p>
+    {/* ================= HEADER ================= */}
 
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mt-2">
-              Our Gallery
-            </h2>
+    <div className="text-center mb-8 sm:mb-10">
 
-            <p className="text-slate-500 mt-3 max-w-2xl mx-auto">
-              Explore memorable moments, activities and events from our school.
-            </p>
-          </div>
+      <p className="text-red-800 font-semibold text-sm sm:text-base">
+        SCHOOL MOMENTS
+      </p>
 
-          {/* ================= CONTENT ================= */}
+      <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mt-2">
+        Our Gallery
+      </h2>
 
-          {loadingGallery ? (
-            <GallerySkeleton />
-          ) : gallery.length === 0 ? (
-            <div className="text-center py-16 border border-dashed rounded-xl">
-              <ImageIcon size={42} className="mx-auto text-slate-300 mb-3" />
+      <p className="text-slate-500 mt-3 max-w-2xl mx-auto text-sm sm:text-base leading-6">
+        Explore memorable moments, activities and events from our school.
+      </p>
 
-              <p className="text-slate-500">
-                No gallery albums available right now.
-              </p>
-            </div>
-          ) : (
-            <div className="relative">
-              {/* ================= LEFT ARROW ================= */}
+    </div>
 
-              {hasPrevGallery && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGalleryDirection("left");
-                    setGalleryPage((prev) => prev - 1);
-                  }}
-                  className="
+
+    {/* ================= CONTENT ================= */}
+
+    {loadingGallery ? (
+      <GallerySkeleton />
+    ) : gallery.length === 0 ? (
+
+      <div className="text-center py-12 sm:py-16 px-4 border border-dashed rounded-xl">
+
+        <ImageIcon
+          size={42}
+          className="mx-auto text-slate-300 mb-3"
+        />
+
+        <p className="text-slate-500 text-sm sm:text-base">
+          No gallery albums available right now.
+        </p>
+
+      </div>
+
+    ) : (
+
+      <div className="relative">
+
+        {/* ================= LEFT ARROW ================= */}
+
+        {hasPrevGallery && (
+          <button
+            type="button"
+            onClick={() => {
+              setGalleryDirection("left");
+              setGalleryPage((prev) => prev - 1);
+            }}
+            className="
+              hidden sm:flex
               absolute
               left-0
               top-1/2
@@ -641,7 +657,6 @@ function Home() {
               border
               border-slate-200
               shadow-md
-              flex
               items-center
               justify-center
               text-slate-700
@@ -650,43 +665,54 @@ function Home() {
               hover:border-red-800
               transition
             "
-                  aria-label="Previous gallery"
-                >
-                  <ChevronLeft size={21} />
-                </button>
-              )}
+            aria-label="Previous gallery"
+          >
+            <ChevronLeft size={21} />
+          </button>
+        )}
 
-              {/* ================= GALLERY GRID ================= */}
 
-              <div
-                key={galleryPage}
-                className={`
-    grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4
-    animate-gallery-slide
-    ${
-      galleryDirection === "right"
-        ? "gallery-slide-right"
-        : "gallery-slide-left"
-    }
-  `}
-              >
-                {visibleGallery.map((album) => (
-                  <Link
-                    to="/gallery"
-                    key={album._id}
-                    className="
+        {/* ================= GALLERY GRID ================= */}
+
+        <div
+          key={galleryPage}
+          className={`
+            grid
+            grid-cols-3
+            gap-2
+            sm:gap-4
+            animate-gallery-slide
+            ${
+              galleryDirection === "right"
+                ? "gallery-slide-right"
+                : "gallery-slide-left"
+            }
+          `}
+        >
+
+          {visibleGallery.map((album) => (
+
+            <Link
+              to="/gallery"
+              key={album._id}
+              className="
                 group
                 relative
                 aspect-video
                 overflow-hidden
-                rounded-xl
+                rounded-lg
+                sm:rounded-xl
                 bg-slate-100
+                min-w-0
               "
-                  >
-                    <img
-                      src={album.images?.[0]?.url}
-                      alt={album.title}
-                      className="
+            >
+
+              {/* ================= IMAGE ================= */}
+
+              <img
+                src={album.images?.[0]?.url}
+                alt={album.title}
+                className="
                   w-full
                   h-full
                   object-cover
@@ -694,38 +720,59 @@ function Home() {
                   transition
                   duration-500
                 "
-                      loading="lazy"
-                    />
+                loading="lazy"
+              />
 
-                    {/* Overlay */}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              {/* ================= OVERLAY ================= */}
 
-                    {/* Album Info */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-white font-semibold text-sm sm:text-base truncate">
-                        {album.title}
-                      </h3>
 
-                      <p className="text-white/75 text-xs mt-1">
-                        {album.images?.length || 0} Photos
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+              {/* ================= ALBUM INFO ================= */}
+
+              <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4">
+
+                <h3 className="
+                  text-white
+                  font-semibold
+                  text-[10px]
+                  sm:text-base
+                  truncate
+                ">
+                  {album.title}
+                </h3>
+
+                <p className="
+                  text-white/75
+                  text-[9px]
+                  sm:text-xs
+                  mt-0.5
+                  sm:mt-1
+                ">
+                  {album.images?.length || 0} Photos
+                </p>
+
               </div>
 
-              {/* ================= RIGHT ARROW ================= */}
+            </Link>
 
-              {hasNextGallery && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGalleryDirection("right");
-                    setGalleryPage((prev) => prev + 1);
-                  }}
-                  className="
+          ))}
+
+        </div>
+
+
+        {/* ================= RIGHT ARROW ================= */}
+
+        {hasNextGallery && (
+          <button
+            type="button"
+            onClick={() => {
+              setGalleryDirection("right");
+              setGalleryPage((prev) => prev + 1);
+            }}
+            className="
+              hidden sm:flex
               absolute
               right-0
               top-1/2
@@ -739,7 +786,6 @@ function Home() {
               border
               border-slate-200
               shadow-md
-              flex
               items-center
               justify-center
               text-slate-700
@@ -748,21 +794,25 @@ function Home() {
               hover:border-red-800
               transition
             "
-                  aria-label="Next gallery"
-                >
-                  <ChevronRight size={21} />
-                </button>
-              )}
-            </div>
-          )}
+            aria-label="Next gallery"
+          >
+            <ChevronRight size={21} />
+          </button>
+        )}
 
-          {/* ================= VIEW FULL GALLERY ================= */}
+      </div>
 
-          {gallery.length > 0 && !loadingGallery && (
-            <div className="text-center mt-8">
-              <Link
-                to="/gallery"
-                className="
+    )}
+
+
+    {/* ================= VIEW FULL GALLERY ================= */}
+
+    {gallery.length > 0 && !loadingGallery && (
+      <div className="text-center mt-7 sm:mt-8">
+
+        <Link
+          to="/gallery"
+          className="
             inline-flex
             items-center
             gap-2
@@ -770,16 +820,19 @@ function Home() {
             font-semibold
             text-red-800
             hover:text-red-600
+            transition
           "
-              >
-                VIEW FULL GALLERY
-                <ArrowRight size={17} />
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+        >
+          VIEW FULL GALLERY
 
+          <ArrowRight size={17} />
+        </Link>
+
+      </div>
+    )}
+
+  </div>
+</section>
       {/* =====================================================
           LOCATION
       ===================================================== */}

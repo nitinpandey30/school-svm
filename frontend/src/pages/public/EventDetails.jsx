@@ -114,7 +114,7 @@ function EventDetails() {
 
 
   return (
-    <section className="py-12 sm:py-16 bg-slate-50 min-h-screen">
+    <section className="min-h-screen bg-slate-50 pt-20 pb-10 sm:py-12 lg:py-16">
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
 

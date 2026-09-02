@@ -37,233 +37,232 @@ function Events() {
     fetchEvents();
   }, []);
 
-  return (
-    <section className="min-h-screen bg-slate-50 py-12 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+ return (
+  <section className="min-h-screen bg-slate-50 pt-20 pb-10 sm:py-12 lg:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* ================= HEADER ================= */}
+      {/* ================= HEADER ================= */}
 
-        <div className="mb-10 sm:mb-12">
+      <div className="mb-8 sm:mb-10 lg:mb-12">
 
-          <div className="flex items-center gap-3">
+        <div className="flex items-start sm:items-center gap-3">
 
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-red-100 text-red-800 flex items-center justify-center">
-              <PartyPopper size={23} />
-            </div>
-
-            <div>
-              <p className="text-blue-700 text-xs sm:text-sm font-semibold uppercase tracking-wide">
-                School Activities
-              </p>
-
-              <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mt-1">
-                Events
-              </h1>
-            </div>
-
+          <div className="relative z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-red-100 text-red-800 flex items-center justify-center shrink-0">
+            <PartyPopper size={21} className="sm:w-[23px] sm:h-[23px]" />
           </div>
 
-          <p className="text-slate-500 mt-4 max-w-2xl leading-6">
-            Explore upcoming and recent events, activities and programs
-            happening at Shaheed Uttam Chand Saraswati Vidya Mandir
-            Inter College.
-          </p>
+          <div className="min-w-0">
+            <p className="text-blue-700 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+              School Activities
+            </p>
+
+            <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mt-1">
+              Events
+            </h1>
+          </div>
 
         </div>
 
+        <p className="text-slate-500 mt-4 max-w-2xl leading-6 text-sm sm:text-base">
+          Explore upcoming and recent events, activities and programs
+          happening at Shaheed Uttam Chand Saraswati Vidya Mandir
+          Inter College.
+        </p>
 
-        {/* ================= LOADING ================= */}
-
-        {loading && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <EventSkeleton key={item} />
-            ))}
-
-          </div>
-        )}
+      </div>
 
 
-        {/* ================= ERROR ================= */}
+      {/* ================= LOADING ================= */}
 
-        {!loading && error && (
-          <div className="bg-white border border-red-100 rounded-2xl py-16 text-center">
+      {loading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
 
-            <CalendarDays
-              size={44}
-              className="mx-auto text-red-300 mb-4"
-            />
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <EventSkeleton key={item} />
+          ))}
 
-            <h2 className="text-xl font-semibold text-slate-800">
-              Something went wrong
-            </h2>
-
-            <p className="text-red-500 mt-2">
-              {error}
-            </p>
-
-          </div>
-        )}
+        </div>
+      )}
 
 
-        {/* ================= EMPTY ================= */}
+      {/* ================= ERROR ================= */}
 
-        {!loading && !error && events.length === 0 && (
-          <div className="bg-white border border-dashed border-slate-300 rounded-2xl py-20 text-center">
+      {!loading && error && (
+        <div className="bg-white border border-red-100 rounded-2xl py-12 sm:py-16 px-4 text-center">
 
-            <CalendarDays
-              size={46}
-              className="mx-auto text-slate-300"
-            />
+          <CalendarDays
+            size={40}
+            className="mx-auto text-red-300 mb-4"
+          />
 
-            <h2 className="text-lg font-semibold text-slate-700 mt-4">
-              No Events Available
-            </h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-slate-800">
+            Something went wrong
+          </h2>
 
-            <p className="text-slate-500 text-sm mt-2">
-              There are no upcoming events available at the moment.
-            </p>
+          <p className="text-red-500 mt-2 text-sm sm:text-base break-words">
+            {error}
+          </p>
 
-          </div>
-        )}
+        </div>
+      )}
 
 
-        {/* ================= EVENTS GRID ================= */}
+      {/* ================= EMPTY ================= */}
 
-        {!loading && !error && events.length > 0 && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {!loading && !error && events.length === 0 && (
+        <div className="bg-white border border-dashed border-slate-300 rounded-2xl py-16 sm:py-20 px-4 text-center">
 
-            {events.map((event) => {
+          <CalendarDays
+            size={42}
+            className="mx-auto text-slate-300"
+          />
 
-              const eventDate = event.date
-                ? new Date(event.date)
-                : null;
+          <h2 className="text-lg font-semibold text-slate-700 mt-4">
+            No Events Available
+          </h2>
 
-              const validDate =
-                eventDate &&
-                !isNaN(eventDate.getTime());
+          <p className="text-slate-500 text-sm mt-2">
+            There are no upcoming events available at the moment.
+          </p>
 
-              return (
-                <article
-                  key={event._id}
-                  className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition duration-300"
+        </div>
+      )}
+
+
+      {/* ================= EVENTS GRID ================= */}
+
+      {!loading && !error && events.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+
+          {events.map((event) => {
+
+            const eventDate = event.date
+              ? new Date(event.date)
+              : null;
+
+            const validDate =
+              eventDate &&
+              !isNaN(eventDate.getTime());
+
+            return (
+              <article
+                key={event._id}
+                className="group min-w-0 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition duration-300"
+              >
+
+                {/* ================= POSTER ================= */}
+
+                <Link
+                  to={`/events/${event._id}`}
+                  className="block relative aspect-[16/9] bg-slate-100 overflow-hidden"
                 >
 
-                  {/* ================= POSTER ================= */}
+                  {event.imageUrl ? (
+                    <img
+                      src={event.imageUrl}
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon
+                        size={42}
+                        className="text-slate-300"
+                      />
+                    </div>
+                  )}
+
+                  {/* Date Badge */}
+
+                </Link>
+
+
+                {/* ================= CONTENT ================= */}
+
+                <div className="p-4 sm:p-5">
+
+                  {/* Date */}
+
+                  {validDate && (
+                    <p className="text-xs sm:text-sm font-semibold text-blue-700">
+                      {eventDate.toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  )}
+
+
+                  {/* Title */}
 
                   <Link
                     to={`/events/${event._id}`}
-                    className="block relative aspect-[16/9] bg-slate-100 overflow-hidden"
+                    className="block min-w-0"
                   >
-
-                    {event.imageUrl ? (
-                      <img
-                        src={event.imageUrl}
-                        alt={event.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon
-                          size={42}
-                          className="text-slate-300"
-                        />
-                      </div>
-                    )}
-
-                    {/* Date Badge */}
-
-                    
-
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-2 line-clamp-2 break-words group-hover:text-red-800 transition">
+                      {event.title}
+                    </h2>
                   </Link>
 
 
-                  {/* ================= CONTENT ================= */}
+                  {/* Short Description */}
 
-                  <div className="p-5">
-
-                    {/* Date */}
-
-                    {validDate && (
-                      <p className="text-xs font-semibold text-blue-700">
-                        {eventDate.toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </p>
-                    )}
+                  {event.shortDescription && (
+                    <p className="text-sm text-slate-500 leading-6 mt-2 line-clamp-2">
+                      {event.shortDescription}
+                    </p>
+                  )}
 
 
-                    {/* Title */}
+                  {/* Location */}
+
+                  {event.location && (
+                    <div className="flex items-center gap-2 mt-4 text-sm text-slate-500 min-w-0">
+
+                      <MapPin
+                        size={16}
+                        className="text-red-700 shrink-0"
+                      />
+
+                      <span className="truncate min-w-0">
+                        {event.location}
+                      </span>
+
+                    </div>
+                  )}
+
+
+                  {/* Details */}
+
+                  <div className="border-t border-slate-100 mt-5 pt-4">
 
                     <Link
                       to={`/events/${event._id}`}
-                      className="block"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-red-800 hover:text-red-600 transition"
                     >
-                      <h2 className="text-lg font-bold text-slate-900 mt-2 line-clamp-2 group-hover:text-red-800 transition">
-                        {event.title}
-                      </h2>
+                      View Details
+
+                      <ArrowRight
+                        size={16}
+                        className="group-hover:translate-x-1 transition"
+                      />
                     </Link>
-
-
-                    {/* Short Description */}
-
-                    {event.shortDescription && (
-                      <p className="text-sm text-slate-500 leading-6 mt-2 line-clamp-2">
-                        {event.shortDescription}
-                      </p>
-                    )}
-
-
-                    {/* Location */}
-
-                    {event.location && (
-                      <div className="flex items-center gap-2 mt-4 text-sm text-slate-500">
-
-                        <MapPin
-                          size={16}
-                          className="text-red-700 shrink-0"
-                        />
-
-                        <span className="truncate">
-                          {event.location}
-                        </span>
-
-                      </div>
-                    )}
-
-
-                    {/* Details */}
-
-                    <div className="border-t border-slate-100 mt-5 pt-4">
-
-                      <Link
-                        to={`/events/${event._id}`}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-red-800 hover:text-red-600 transition"
-                      >
-                        View Details
-                        <ArrowRight
-                          size={16}
-                          className="group-hover:translate-x-1 transition"
-                        />
-                      </Link>
-
-                    </div>
 
                   </div>
 
-                </article>
-              );
-            })}
+                </div>
 
-          </div>
-        )}
+              </article>
+            );
+          })}
 
-      </div>
-    </section>
-  );
+        </div>
+      )}
+
+    </div>
+  </section>
+);
 }
 
 
