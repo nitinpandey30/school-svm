@@ -151,262 +151,261 @@ function ManageFees() {
     }
   };
 
-  return (
-    <div className="p-6">
+ return (
+  <div className="p-4 sm:p-6">
 
-      {/* Header */}
-      <div className="mb-8">
-        <p className="text-blue-600 font-semibold text-sm">
-          ADMINISTRATION
-        </p>
+    {/* Header */}
+    <div className="mb-6 sm:mb-8">
+      <p className="text-blue-600 font-semibold text-xs sm:text-sm">
+        ADMINISTRATION
+      </p>
 
-        <h1 className="text-3xl font-bold text-slate-900 mt-1">
-          Manage Fee Structure
-        </h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
+        Manage Fee Structure
+      </h1>
 
-        <p className="text-slate-500 mt-2">
-          Upload and manage fee structure PDFs for different academic years.
-        </p>
+      <p className="text-slate-500 mt-1 sm:mt-2 text-sm sm:text-base">
+        Upload and manage fee structure PDFs for different academic years.
+      </p>
+    </div>
+
+
+    {/* Form */}
+    <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
+
+        <div className="flex items-center gap-3">
+
+          <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
+            {editingId ? <Pencil size={20} /> : <Upload size={20} />}
+          </div>
+
+          <div className="min-w-0">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-900">
+              {editingId
+                ? "Edit Fee Structure"
+                : "Upload Fee Structure"}
+            </h2>
+
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              {editingId
+                ? "Update academic year or replace the PDF."
+                : "Upload the fee structure PDF for an academic year."}
+            </p>
+          </div>
+
+        </div>
+
+        {editingId && (
+          <button
+            type="button"
+            onClick={resetForm}
+            className="p-2 text-slate-400 hover:text-slate-700 self-start sm:self-auto"
+            title="Cancel Edit"
+          >
+            <X size={21} />
+          </button>
+        )}
+
       </div>
 
 
-      {/* Form */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
-        <div className="flex items-center justify-between mb-6">
+        {/* Academic Year */}
+        <div>
 
-          <div className="flex items-center gap-3">
+          <label className="block text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
+            Academic Year
+          </label>
 
-            <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-              {editingId ? <Pencil size={20} /> : <Upload size={20} />}
-            </div>
+          <input
+            type="text"
+            value={academicYear}
+            onChange={(e) => setAcademicYear(e.target.value)}
+            placeholder="e.g. 2026-27"
+            required
+            className="w-full border border-slate-300 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                {editingId
-                  ? "Edit Fee Structure"
-                  : "Upload Fee Structure"}
-              </h2>
+        </div>
 
-              <p className="text-sm text-slate-500">
-                {editingId
-                  ? "Update academic year or replace the PDF."
-                  : "Upload the fee structure PDF for an academic year."}
-              </p>
-            </div>
 
-          </div>
+        {/* PDF */}
+        <div>
+
+          <label className="block text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
+            {editingId ? "Replace PDF" : "Fee Structure PDF"}
+          </label>
+
+          <input
+            id="feePdf"
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setPdfFile(e.target.files[0])}
+            className="w-full border border-slate-300 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-sm"
+          />
+
+          <p className="text-xs text-slate-400 mt-1.5 sm:mt-2">
+            PDF only • Maximum size 10 MB
+          </p>
 
           {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="p-2 text-slate-400 hover:text-slate-700"
-              title="Cancel Edit"
-            >
-              <X size={21} />
-            </button>
+            <p className="text-xs text-blue-600 mt-1">
+              Leave empty if you only want to change the academic year.
+            </p>
           )}
 
         </div>
 
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
 
-          {/* Academic Year */}
-          <div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium text-sm sm:text-base transition"
+          >
+            {editingId ? <Pencil size={18} /> : <Upload size={18} />}
 
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Academic Year
-            </label>
+            {loading
+              ? "Saving..."
+              : editingId
+                ? "Update Fee Structure"
+                : "Upload Fee Structure"}
+          </button>
 
-            <input
-              type="text"
-              value={academicYear}
-              onChange={(e) => setAcademicYear(e.target.value)}
-              placeholder="e.g. 2026-27"
-              required
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-          </div>
-
-
-          {/* PDF */}
-          <div>
-
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              {editingId ? "Replace PDF" : "Fee Structure PDF"}
-            </label>
-
-            <input
-              id="feePdf"
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setPdfFile(e.target.files[0])}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2.5"
-            />
-
-            <p className="text-xs text-slate-400 mt-2">
-              PDF only • Maximum size 10 MB
-            </p>
-
-            {editingId && (
-              <p className="text-xs text-blue-600 mt-1">
-                Leave empty if you only want to change the academic year.
-              </p>
-            )}
-
-          </div>
-
-
-          {/* Buttons */}
-          <div className="flex gap-3">
-
+          {editingId && (
             <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg font-medium transition"
+              type="button"
+              onClick={resetForm}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium text-sm sm:text-base transition"
             >
-              {editingId ? <Pencil size={18} /> : <Upload size={18} />}
-
-              {loading
-                ? "Saving..."
-                : editingId
-                  ? "Update Fee Structure"
-                  : "Upload Fee Structure"}
+              <X size={18} />
+              Cancel
             </button>
+          )}
 
-            {editingId && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg font-medium transition"
-              >
-                <X size={18} />
-                Cancel
-              </button>
-            )}
+        </div>
 
-          </div>
+      </form>
+    </div>
 
-        </form>
+
+    {/* Existing Fees */}
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+
+      <div className="p-4 sm:p-6 border-b border-slate-200">
+
+        <h2 className="text-base sm:text-lg font-semibold text-slate-900">
+          Uploaded Fee Structures
+        </h2>
+
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          Manage existing fee structure documents.
+        </p>
+
       </div>
 
 
-      {/* Existing Fees */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      {fees.length === 0 ? (
 
-        <div className="p-6 border-b border-slate-200">
+        <div className="text-center py-12 sm:py-16 px-4">
 
-          <h2 className="text-lg font-semibold text-slate-900">
-            Uploaded Fee Structures
-          </h2>
+          <FileText
+            size={40}
+            className="mx-auto text-slate-300 mb-2 sm:mb-3"
+          />
 
-          <p className="text-sm text-slate-500 mt-1">
-            Manage existing fee structure documents.
+          <p className="text-slate-500 text-sm sm:text-base">
+            No fee structures uploaded yet.
           </p>
 
         </div>
 
+      ) : (
 
-        {fees.length === 0 ? (
+        <div className="divide-y divide-slate-100">
 
-          <div className="text-center py-16">
+          {fees.map((fee) => (
 
-            <FileText
-              size={45}
-              className="mx-auto text-slate-300 mb-3"
-            />
+            <div
+              key={fee._id}
+              className="p-3 sm:p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
 
-            <p className="text-slate-500">
-              No fee structures uploaded yet.
-            </p>
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
 
-          </div>
-
-        ) : (
-
-          <div className="divide-y divide-slate-100">
-
-            {fees.map((fee) => (
-
-              <div
-                key={fee._id}
-                className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-
-                <div className="flex items-center gap-4">
-
-                  <div className="w-11 h-11 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                    <FileText size={22} />
-                  </div>
-
-                  <div>
-
-                    <h3 className="font-semibold text-slate-900">
-                      Academic Year {fee.academicYear}
-                    </h3>
-
-                    <p className="text-xs text-slate-400 mt-1">
-                      Uploaded{" "}
-                      {new Date(
-                        fee.createdAt
-                      ).toLocaleDateString("en-IN")}
-                    </p>
-
-                  </div>
-
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
+                  <FileText size={20} />
                 </div>
 
+                <div className="min-w-0">
 
-                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
+                    Academic Year {fee.academicYear}
+                  </h3>
 
-                  {/* View */}
-                  <a
-                    href={fee.pdfUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium transition"
-                  >
-                    <Eye size={17} />
-                    View
-                  </a>
-
-
-                  {/* Edit */}
-                  <button
-                    onClick={() => handleEdit(fee)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-sm font-medium transition"
-                  >
-                    <Pencil size={17} />
-                    Edit
-                  </button>
-
-
-                  {/* Delete */}
-                  <button
-                    onClick={() => handleDelete(fee._id)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition"
-                  >
-                    <Trash2 size={17} />
-                    Delete
-                  </button>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Uploaded{" "}
+                    {new Date(
+                      fee.createdAt
+                    ).toLocaleDateString("en-IN")}
+                  </p>
 
                 </div>
 
               </div>
 
-            ))}
 
-          </div>
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
 
-        )}
+                {/* View */}
+                <a
+                  href={fee.pdfUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs sm:text-sm font-medium transition"
+                >
+                  <Eye size={16} />
+                  View
+                </a>
 
-      </div>
+                {/* Edit */}
+                <button
+                  onClick={() => handleEdit(fee)}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs sm:text-sm font-medium transition"
+                >
+                  <Pencil size={16} />
+                  Edit
+                </button>
+
+
+                {/* Delete */}
+                <button
+                  onClick={() => handleDelete(fee._id)}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-xs sm:text-sm font-medium transition"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      )}
 
     </div>
-  );
+
+  </div>
+);
 }
 
 export default ManageFees;

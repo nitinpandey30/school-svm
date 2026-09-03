@@ -296,16 +296,16 @@ function ManageEvents() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* =================================================
-          HEADER
-      ================================================= */}
+        HEADER
+    ================================================= */}
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
             Administration
           </p>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1 break-words">
             Event Management
           </h1>
 
@@ -316,7 +316,7 @@ function ManageEvents() {
 
         <button
           onClick={openCreateForm}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold transition shadow-sm"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-red-800 hover:bg-red-700 text-white rounded-xl font-semibold transition shadow-sm shrink-0"
         >
           <Plus size={19} />
           Add Event
@@ -324,15 +324,15 @@ function ManageEvents() {
       </div>
 
       {/* =================================================
-          FORM
-      ================================================= */}
+        FORM
+    ================================================= */}
 
       {showForm && (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-8 overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-6 sm:mb-8 overflow-hidden">
           {/* Form Header */}
 
-          <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-            <div>
+          <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4">
+            <div className="min-w-0">
               <h2 className="text-lg font-bold text-slate-900">
                 {editingId ? "Edit Event" : "Create New Event"}
               </h2>
@@ -345,7 +345,7 @@ function ManageEvents() {
             <button
               type="button"
               onClick={resetForm}
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+              className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
             >
               <X size={20} />
             </button>
@@ -353,10 +353,13 @@ function ManageEvents() {
 
           {/* Form */}
 
-          <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 sm:p-6 space-y-5 sm:space-y-6"
+          >
             {/* =================================================
-                POSTER
-            ================================================= */}
+              POSTER
+          ================================================= */}
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -364,7 +367,7 @@ function ManageEvents() {
                 {!editingId && <span className="text-red-500 ml-1">*</span>}
               </label>
 
-              <div className="grid md:grid-cols-[280px_1fr] gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-5">
                 {/* Preview */}
 
                 <div className="relative aspect-[16/10] md:aspect-[4/3] bg-slate-100 border border-slate-200 rounded-xl overflow-hidden">
@@ -386,8 +389,9 @@ function ManageEvents() {
                       </button>
                     </>
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 px-4 text-center">
                       <ImageIcon size={40} />
+
                       <p className="text-sm mt-2">No poster selected</p>
                     </div>
                   )}
@@ -398,11 +402,11 @@ function ManageEvents() {
                 <div className="flex flex-col justify-center">
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:border-red-400 hover:bg-red-50/30 transition"
+                    className="border-2 border-dashed border-slate-300 rounded-xl p-5 sm:p-6 text-center cursor-pointer hover:border-red-400 hover:bg-red-50/30 transition"
                   >
                     <Upload size={30} className="mx-auto text-slate-400" />
 
-                    <p className="font-semibold text-slate-700 mt-3">
+                    <p className="font-semibold text-slate-700 mt-3 break-words">
                       {poster ? poster.name : "Upload event poster"}
                     </p>
 
@@ -434,8 +438,8 @@ function ManageEvents() {
             </div>
 
             {/* =================================================
-                TITLE
-            ================================================= */}
+              TITLE
+          ================================================= */}
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -455,8 +459,8 @@ function ManageEvents() {
             </div>
 
             {/* =================================================
-                SHORT DESCRIPTION
-            ================================================= */}
+              SHORT DESCRIPTION
+          ================================================= */}
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -480,8 +484,8 @@ function ManageEvents() {
             </div>
 
             {/* =================================================
-                DESCRIPTION
-            ================================================= */}
+              DESCRIPTION
+          ================================================= */}
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -500,10 +504,10 @@ function ManageEvents() {
             </div>
 
             {/* =================================================
-                DATE + LOCATION
-            ================================================= */}
+              DATE + LOCATION
+          ================================================= */}
 
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Event Date
@@ -537,15 +541,15 @@ function ManageEvents() {
             </div>
 
             {/* =================================================
-                STATUS + ORDER
-            ================================================= */}
+              STATUS + ORDER
+          ================================================= */}
 
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* Active */}
 
               <div className="border border-slate-200 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
                     <p className="font-semibold text-slate-800">Event Status</p>
 
                     <p className="text-xs text-slate-400 mt-1">
@@ -553,7 +557,7 @@ function ManageEvents() {
                     </p>
                   </div>
 
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input
                       type="checkbox"
                       name="isActive"
@@ -585,7 +589,7 @@ function ManageEvents() {
                 </label>
 
                 <div className="flex items-center gap-3">
-                  <GripVertical size={19} className="text-slate-400" />
+                  <GripVertical size={19} className="text-slate-400 shrink-0" />
 
                   <input
                     type="number"
@@ -604,15 +608,15 @@ function ManageEvents() {
             </div>
 
             {/* =================================================
-                FORM BUTTONS
-            ================================================= */}
+              FORM BUTTONS
+          ================================================= */}
 
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={resetForm}
                 disabled={saving}
-                className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition disabled:opacity-50"
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -620,7 +624,7 @@ function ManageEvents() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-3 rounded-xl bg-red-800 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold transition"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-red-800 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold transition"
               >
                 {saving
                   ? editingId
@@ -635,11 +639,15 @@ function ManageEvents() {
         </div>
       )}
 
+      {/* =================================================
+        EVENTS LIST
+    ================================================= */}
+
       {!showForm && (
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
           {/* List Header */}
 
-          <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <div>
               <h2 className="font-bold text-slate-900">All Events</h2>
 
@@ -656,10 +664,10 @@ function ManageEvents() {
           {loading && (
             <div className="divide-y divide-slate-100">
               {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="p-5 flex gap-4 animate-pulse">
-                  <div className="w-28 h-20 rounded-xl bg-slate-200 shrink-0" />
+                <div key={item} className="p-4 sm:p-5 flex gap-4 animate-pulse">
+                  <div className="w-24 sm:w-28 h-20 rounded-xl bg-slate-200 shrink-0" />
 
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-3 min-w-0">
                     <div className="h-4 w-1/3 bg-slate-200 rounded" />
                     <div className="h-3 w-2/3 bg-slate-200 rounded" />
                     <div className="h-3 w-1/2 bg-slate-200 rounded" />
@@ -672,7 +680,7 @@ function ManageEvents() {
           {/* Empty */}
 
           {!loading && events.length === 0 && (
-            <div className="py-20 text-center px-5">
+            <div className="py-16 sm:py-20 text-center px-5">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 mx-auto flex items-center justify-center">
                 <CalendarDays size={28} className="text-slate-400" />
               </div>
@@ -709,10 +717,10 @@ function ManageEvents() {
                     key={event._id}
                     className="p-4 sm:p-5 hover:bg-slate-50/70 transition"
                   >
-                    <div className="flex flex-col lg:flex-row gap-5 lg:items-center">
+                    <div className="flex flex-col lg:flex-row gap-4 sm:gap-5 lg:items-center">
                       {/* Poster */}
 
-                      <div className="w-full lg:w-36 h-48 lg:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                      <div className="w-full lg:w-36 h-48 sm:h-56 lg:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
                         {event.imageUrl ? (
                           <img
                             src={event.imageUrl}
@@ -730,12 +738,12 @@ function ManageEvents() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-bold text-slate-900">
+                          <h3 className="font-bold text-slate-900 break-words">
                             {event.title}
                           </h3>
 
                           <span
-                            className={`text-[11px] font-semibold px-2 py-1 rounded-full ${
+                            className={`text-[11px] font-semibold px-2 py-1 rounded-full shrink-0 ${
                               event.isActive
                                 ? "bg-green-100 text-green-700"
                                 : "bg-slate-100 text-slate-500"
@@ -765,10 +773,12 @@ function ManageEvents() {
                           )}
 
                           {event.location && (
-                            <span className="inline-flex items-center gap-1.5">
-                              <MapPin size={14} />
+                            <span className="inline-flex items-center gap-1.5 max-w-full">
+                              <MapPin size={14} className="shrink-0" />
 
-                              {event.location}
+                              <span className="break-words">
+                                {event.location}
+                              </span>
                             </span>
                           )}
 
@@ -781,16 +791,17 @@ function ManageEvents() {
                       <div className="flex items-center gap-2 lg:self-center">
                         <button
                           onClick={() => handleEdit(event)}
-                          className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition text-sm font-semibold"
+                          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition text-sm font-semibold"
                         >
                           <Pencil size={16} />
+
                           <span className="hidden sm:inline">Edit</span>
                         </button>
 
                         <button
                           onClick={() => handleDelete(event._id)}
                           disabled={deletingId === event._id}
-                          className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition text-sm font-semibold"
+                          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition text-sm font-semibold"
                         >
                           <Trash2 size={16} />
 

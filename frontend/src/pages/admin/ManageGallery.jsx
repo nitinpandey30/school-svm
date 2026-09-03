@@ -187,15 +187,15 @@ function ManageGallery() {
   };
 
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-4 sm:p-6 lg:p-8 min-w-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
             Gallery
           </h1>
 
-          <p className="text-slate-500 mt-2">
+          <p className="text-sm sm:text-base text-slate-500 mt-2">
             Manage school events and photo albums.
           </p>
         </div>
@@ -214,7 +214,7 @@ function ManageGallery() {
 
             setShowForm(true);
           }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition shrink-0"
         >
           <Plus size={19} />
           Add Gallery
@@ -223,15 +223,15 @@ function ManageGallery() {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex items-center justify-between gap-3 mb-5 sm:mb-6">
             <h2 className="text-lg font-semibold text-slate-900">
               {editingId ? "Edit Gallery" : "Add Gallery"}
             </h2>
 
             <button
               onClick={resetForm}
-              className="text-slate-400 hover:text-slate-700"
+              className="text-slate-400 hover:text-slate-700 shrink-0"
             >
               <X size={21} />
             </button>
@@ -251,7 +251,7 @@ function ManageGallery() {
                 onChange={handleChange}
                 required
                 placeholder="Example: Annual Day 2026"
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -267,17 +267,18 @@ function ManageGallery() {
                 value={formData.date}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 sm:px-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
+            {/* Existing Images */}
             {editingId && existingImages.length > 0 && (
               <div>
                 <p className="text-sm font-medium text-slate-700 mb-3">
                   Existing Images
                 </p>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                   {existingImages.map((image) => (
                     <div
                       key={image._id}
@@ -308,14 +309,14 @@ function ManageGallery() {
                 {editingId ? "Add New Images (Optional)" : "Images"}
               </label>
 
-              <label className="border-2 border-dashed border-slate-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition">
+              <label className="border-2 border-dashed border-slate-300 rounded-xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition text-center">
                 <Upload className="text-blue-600 mb-3" size={30} />
 
                 <span className="font-medium text-slate-700">
                   Choose Images
                 </span>
 
-                <span className="text-sm text-slate-400 mt-1">
+                <span className="text-xs sm:text-sm text-slate-400 mt-1">
                   You can select multiple images
                 </span>
 
@@ -336,7 +337,7 @@ function ManageGallery() {
                   Selected Images
                 </p>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                   {previewImages.map((image, index) => (
                     <div
                       key={image}
@@ -348,7 +349,6 @@ function ManageGallery() {
                         className="w-full h-full object-cover"
                       />
 
-                      {/* Remove Button */}
                       <button
                         type="button"
                         onClick={() => handleRemoveSelectedImage(index)}
@@ -364,11 +364,11 @@ function ManageGallery() {
             )}
 
             {/* Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium"
+                className="w-full sm:w-auto px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium"
               >
                 {saving
                   ? "Uploading..."
@@ -380,7 +380,7 @@ function ManageGallery() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium"
+                className="w-full sm:w-auto px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium"
               >
                 Cancel
               </button>
@@ -392,40 +392,40 @@ function ManageGallery() {
       {/* Gallery Albums */}
       {!showForm && (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-200">
+          <div className="px-4 sm:px-6 py-4 border-b border-slate-200">
             <h2 className="font-semibold text-slate-900">Gallery Albums</h2>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-slate-500">
+            <div className="p-6 sm:p-8 text-center text-slate-500">
               Loading gallery...
             </div>
           ) : gallery.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">
+            <div className="p-6 sm:p-8 text-center text-slate-500">
               No gallery albums found.
             </div>
           ) : (
-            <div className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {gallery.map((item) => (
                 <div
                   key={item._id}
-                  className="border border-slate-200 rounded-xl overflow-hidden bg-white"
+                  className="border border-slate-200 rounded-xl overflow-hidden bg-white min-w-0"
                 >
                   {/* Album Images */}
-                  <div className="grid grid-cols-2 h-48 bg-slate-100">
+                  <div className="grid grid-cols-2 h-40 sm:h-48 bg-slate-100">
                     {item.images?.slice(0, 4).map((image) => (
                       <img
                         key={image._id}
                         src={image.url}
                         alt={item.title}
-                        className="w-full h-24 object-cover"
+                        className="w-full h-20 sm:h-24 object-cover"
                       />
                     ))}
                   </div>
 
                   {/* Album Info */}
                   <div className="p-4">
-                    <h3 className="font-semibold text-slate-900">
+                    <h3 className="font-semibold text-slate-900 break-words">
                       {item.title}
                     </h3>
 
@@ -440,10 +440,10 @@ function ManageGallery() {
                     </p>
 
                     {/* Actions */}
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-4">
                       <button
                         onClick={() => handleEdit(item)}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 text-sm font-medium"
+                        className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 text-sm font-medium"
                       >
                         <Pencil size={16} />
                         Edit
@@ -451,7 +451,7 @@ function ManageGallery() {
 
                       <button
                         onClick={() => handleDelete(item._id)}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 text-sm font-medium"
+                        className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 text-sm font-medium"
                       >
                         <Trash2 size={16} />
                         Delete
