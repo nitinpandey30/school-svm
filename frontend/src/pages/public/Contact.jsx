@@ -234,14 +234,22 @@ function Contact() {
 
                 <div className="grid sm:grid-cols-2 gap-5">
                   <FormField
-                    label="Phone Number"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="Enter your phone number"
-                    required
-                  />
+  label="Phone Number"
+  name="phone"
+  type="tel"
+  value={formData.phone}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    handleChange({
+      target: { name: "phone", value },
+    });
+  }}
+  placeholder="Enter your phone number"
+  maxLength={10}
+  inputMode="numeric"
+  pattern="[0-9]{10}"
+  required
+/>
 
                   <FormField
                     label="Subject"

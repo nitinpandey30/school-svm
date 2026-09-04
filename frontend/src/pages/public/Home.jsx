@@ -45,6 +45,8 @@ function Home() {
 
   const [events, setEvents] = useState([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const [isEventsPaused, setIsEventsPaused] = useState(false);
+const [isHoveringEvents, setIsHoveringEvents] = useState(false);
 
   /* =====================================================
      GALLERY
@@ -375,214 +377,191 @@ function Home() {
 ===================================================== */}
 
       <section className="py-16 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-6 items-stretch">
-            {/* =================================================
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="grid lg:grid-cols-12 gap-6 items-stretch">
+      
+      {/* =================================================
           NOTICES
       ================================================= */}
 
-            <div className="lg:col-span-3 bg-white border border-slate-200 shadow-sm lg:h-[560px] flex flex-col">
-              {/* HEADER */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200 shrink-0">
-                <div className="w-9 h-9 bg-red-800 text-white rounded flex items-center justify-center shrink-0">
-                  <Bell size={20} />
-                </div>
+      <div className="lg:col-span-3 bg-white border border-slate-200 shadow-sm lg:h-[560px] flex flex-col">
+        {/* HEADER */}
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200 shrink-0">
+          <div className="w-9 h-9 bg-red-800 text-white rounded flex items-center justify-center shrink-0">
+            <Bell size={20} />
+          </div>
 
-                <h2 className="text-lg font-bold text-slate-800">
-                  News & Announcements
-                </h2>
-              </div>
+          <h2 className="text-lg font-bold text-slate-800">
+            News & Announcements
+          </h2>
+        </div>
 
-              {/* NOTICE CONTENT */}
-              <div className="flex-1 overflow-hidden">
-                {loadingNotices ? (
-                  <NoticeSkeleton />
-                ) : notices.length === 0 ? (
-                  <div className="p-6 text-sm text-slate-500">
-                    No notices available.
-                  </div>
-                ) : (
-                  notices.slice(0, 3).map((notice) => (
-                    <div
-                      key={notice._id}
-                      className="px-5 py-5 border-b border-slate-200"
-                    >
-                      <div className="flex gap-3">
-                        <DateBox date={notice.date} />
-
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-blue-700">
-                            {formatDate(notice.date)}
-                          </p>
-
-                          <h3 className="text-sm font-semibold text-slate-800 mt-2 leading-6 line-clamp-2">
-                            {notice.title}
-                          </h3>
-
-                          <p className="text-xs text-slate-500 mt-2 leading-5 line-clamp-2">
-                            {notice.description}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* FOOTER */}
-              <div className="px-5 py-4 border-t border-slate-200 shrink-0">
-                <Link
-                  to="/notices"
-                  className="text-sm font-semibold text-red-800 hover:text-red-600 transition"
-                >
-                  VIEW ALL →
-                </Link>
-              </div>
+        {/* NOTICE CONTENT */}
+        <div className="flex-1 overflow-hidden">
+          {loadingNotices ? (
+            <NoticeSkeleton />
+          ) : notices.length === 0 ? (
+            <div className="p-6 text-sm text-slate-500">
+              No notices available.
             </div>
+          ) : (
+            notices.slice(0, 3).map((notice) => (
+              <div
+                key={notice._id}
+                className="px-5 py-5 border-b border-slate-200"
+              >
+                <div className="flex gap-3">
+                  <DateBox date={notice.date} />
 
-            {/* =================================================
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-blue-700">
+                      {formatDate(notice.date)}
+                    </p>
+
+                    <h3 className="text-sm font-semibold text-slate-800 mt-2 leading-6 line-clamp-2">
+                      {notice.title}
+                    </h3>
+
+                    <p className="text-xs text-slate-500 mt-2 leading-5 line-clamp-2">
+                      {notice.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* FOOTER */}
+        <div className="px-5 py-4 border-t border-slate-200 shrink-0">
+          <Link
+            to="/notices"
+            className="text-sm font-semibold text-red-800 hover:text-red-600 transition"
+          >
+            VIEW ALL →
+          </Link>
+        </div>
+      </div>
+
+      {/* =================================================
           ABOUT
       ================================================= */}
 
-            <div className="lg:col-span-6 bg-white border border-slate-200 shadow-md lg:h-[560px] flex flex-col">
-              {/* HEADER */}
-              <div className="text-center px-5 pt-5 shrink-0">
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
-                  About Our School
-                </h2>
+      <div className="lg:col-span-6 bg-white border border-slate-200 shadow-md lg:h-[560px] flex flex-col">
+        {/* HEADER */}
+        <div className="text-center px-5 pt-5 shrink-0">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">
+            About Our School
+          </h2>
 
-                <div className="w-16 h-1 bg-red-800 mx-auto mt-3 mb-5" />
-              </div>
+          <div className="w-16 h-1 bg-red-800 mx-auto mt-3 mb-5" />
+        </div>
 
-              {/* IMAGE */}
-              <div className="px-5 shrink-0">
-                <div className="h-52 sm:h-56 overflow-hidden">
-                  <img
-                    src="/school-building.jpg"
-                    alt="School Building"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-
-              {/* ABOUT CONTENT */}
-              <div className="px-5 py-5 flex-1 overflow-hidden">
-                <p className="text-sm sm:text-base text-slate-600 leading-7">
-                  Shaheed Uttam Chand Saraswati Vidya Mandir Inter College,
-                  Banbasa is committed to providing quality education while
-                  nurturing discipline, character, creativity and confidence
-                  among students.
-                </p>
-
-                <p className="text-sm sm:text-base text-slate-600 leading-7 mt-3">
-                  Our aim is to create an environment where students can learn,
-                  grow and develop into responsible and successful citizens.
-                </p>
-
-                <Link
-                  to="/about"
-                  className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-red-800 hover:text-red-600 transition"
-                >
-                  READ MORE
-                  <ArrowRight size={17} />
-                </Link>
-              </div>
-            </div>
-
-            {/* =================================================
-          EVENTS
-      ================================================= */}
-
-            <div className="lg:col-span-3 bg-white border border-slate-200 shadow-sm lg:h-[560px] flex flex-col">
-              {/* HEADER */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200 shrink-0">
-                <div className="w-9 h-9 bg-red-800 text-white rounded flex items-center justify-center shrink-0">
-                  <CalendarDays size={20} />
-                </div>
-
-                <h2 className="text-lg font-bold text-slate-800">
-                  Upcoming Events
-                </h2>
-              </div>
-
-              {/* EVENTS CONTENT */}
-              <div className="flex-1 overflow-y-auto">
-                {loadingEvents ? (
-                  <EventSkeleton />
-                ) : events.length === 0 ? (
-                  <div className="p-6 text-sm text-slate-500">
-                    No upcoming events.
-                  </div>
-                ) : (
-                  events.slice(0, 2).map((event) => (
-                    <div
-                      key={event._id}
-                      className="px-5 py-4 border-b border-slate-200"
-                    >
-                      {/* ================= POSTER ================= */}
-
-                      {event.imageUrl && (
-                        <Link
-                          to={`/events/${event._id}`}
-                          className="block w-full h-28 overflow-hidden rounded-lg bg-slate-100 group"
-                        >
-                          <img
-                            src={event.imageUrl}
-                            alt={event.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                            loading="lazy"
-                          />
-                        </Link>
-                      )}
-
-                      {/* ================= EVENT INFO ================= */}
-
-                      <div className="flex gap-3 mt-3">
-                        <DateBox date={event.date} />
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-blue-700">
-                            {formatDate(event.date)}
-                          </p>
-
-                          <h3 className="text-sm font-semibold text-slate-800 mt-1 leading-5 line-clamp-2">
-                            {event.title}
-                          </h3>
-
-                          {event.shortDescription && (
-                            <p className="text-xs text-slate-500 mt-1 leading-5 line-clamp-2">
-                              {event.shortDescription}
-                            </p>
-                          )}
-
-                          {event.location && (
-                            <div className="flex items-center gap-1 mt-1 text-xs text-slate-400">
-                              <MapPin size={13} />
-
-                              <span className="truncate">{event.location}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* FOOTER */}
-              <div className="px-5 py-4 border-t border-slate-200 shrink-0">
-                <Link
-                  to="/events"
-                  className="text-sm font-semibold text-red-800 hover:text-red-600 transition"
-                >
-                  VIEW ALL →
-                </Link>
-              </div>
-            </div>
+        {/* IMAGE */}
+        <div className="px-5 shrink-0">
+          <div className="h-52 sm:h-56 overflow-hidden">
+            <img
+              src="/school-building.jpg"
+              alt="School Building"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
         </div>
-      </section>
+
+        {/* ABOUT CONTENT */}
+        <div className="px-5 py-5 flex-1 overflow-hidden">
+          <p className="text-sm sm:text-base text-slate-600 leading-7">
+            Shaheed Uttam Chand Saraswati Vidya Mandir Inter College,
+            Banbasa is committed to providing quality education while
+            nurturing discipline, character, creativity and confidence
+            among students.
+          </p>
+
+          <p className="text-sm sm:text-base text-slate-600 leading-7 mt-3">
+            Our aim is to create an environment where students can learn,
+            grow and develop into responsible and successful citizens.
+          </p>
+
+          <Link
+            to="/about"
+            className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-red-800 hover:text-red-600 transition"
+          >
+            READ MORE
+            <ArrowRight size={17} />
+          </Link>
+        </div>
+      </div>
+
+      {/* =================================================
+          EVENTS (MARQUEE - bottom to top)
+      ================================================= */}
+
+      {/* =================================================
+    EVENTS (MARQUEE - bottom to top, hover/click to pause)
+================================================= */}
+
+<div className="lg:col-span-3 bg-white border border-slate-200 shadow-sm lg:h-[560px] flex flex-col">
+  {/* HEADER */}
+  <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200 shrink-0">
+    <div className="w-9 h-9 bg-red-800 text-white rounded flex items-center justify-center shrink-0">
+      <CalendarDays size={20} />
+    </div>
+
+    <h2 className="text-lg font-bold text-slate-800">
+      Upcoming Events
+    </h2>
+  </div>
+
+  {/* EVENTS CONTENT - MARQUEE */}
+  <div
+    className="flex-1 overflow-hidden relative cursor-pointer"
+    onClick={() => setIsEventsPaused((prev) => !prev)}
+    onMouseEnter={() => setIsHoveringEvents(true)}
+    onMouseLeave={() => setIsHoveringEvents(false)}
+  >
+    {loadingEvents ? (
+      <EventSkeleton />
+    ) : events.length === 0 ? (
+      <div className="p-6 text-sm text-slate-500">
+        No upcoming events.
+      </div>
+    ) : (
+      <div
+        className="marquee-track"
+        style={{
+          animationPlayState:
+            isEventsPaused || isHoveringEvents ? "paused" : "running",
+        }}
+      >
+        {/* First set */}
+        {events.map((event) => (
+          <EventCard key={event._id} event={event} />
+        ))}
+        {/* Duplicate set for seamless loop */}
+        {events.length > 1 &&
+          events.map((event) => (
+            <EventCard key={`dup-${event._id}`} event={event} />
+          ))}
+      </div>
+    )}
+  </div>
+
+  {/* FOOTER */}
+  <div className="px-5 py-4 border-t border-slate-200 shrink-0">
+    <Link
+      to="/events"
+      className="text-sm font-semibold text-red-800 hover:text-red-600 transition"
+    >
+      VIEW ALL →
+    </Link>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</section>
 
       {/* =====================================================
     GALLERY
@@ -982,6 +961,59 @@ function NoticeSkeleton() {
 
 /* =========================================================
    EVENT SKELETON
+========================================================= */
+
+function EventCard({ event }) {
+  return (
+    <div className="px-5 py-4 border-b border-slate-200">
+      {/* ================= POSTER ================= */}
+      {event.imageUrl && (
+        <Link
+          to={`/events/${event._id}`}
+          className="block w-full h-28 overflow-hidden rounded-lg bg-slate-100 group/img"
+        >
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover/img:scale-105 transition duration-500"
+            loading="lazy"
+          />
+        </Link>
+      )}
+
+      {/* ================= EVENT INFO ================= */}
+      <div className="flex gap-3 mt-3">
+        <DateBox date={event.date} />
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold text-blue-700">
+            {formatDate(event.date)}
+          </p>
+
+          <h3 className="text-sm font-semibold text-slate-800 mt-1 leading-5 line-clamp-2">
+            {event.title}
+          </h3>
+
+          {event.shortDescription && (
+            <p className="text-xs text-slate-500 mt-1 leading-5 line-clamp-2">
+              {event.shortDescription}
+            </p>
+          )}
+
+          {event.location && (
+            <div className="flex items-center gap-1 mt-1 text-xs text-slate-400">
+              <MapPin size={13} />
+              <span className="truncate">{event.location}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   EVENT SKELETON (tera existing, no change)
 ========================================================= */
 
 function EventSkeleton() {

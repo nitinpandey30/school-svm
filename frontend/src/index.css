@@ -30,3 +30,19 @@
 .gallery-slide-left {
   animation: gallerySlideLeft 700ms ease-out;
 }
+
+/* Marquee Animation - Events Section */
+.marquee-track {
+  display: flex;
+  flex-direction: column;
+  animation: marquee-scroll-up 18s linear infinite;
+}
+
+@keyframes marquee-scroll-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
