@@ -1,10 +1,7 @@
 const galleryModel = require("../models/gallery.model");
 const cloudinary = require("../config/cloudinary");
 
-
-
 async function createGallery(req, res) {
-
   try {
     const { title, date } = req.body;
 
@@ -31,7 +28,7 @@ async function createGallery(req, res) {
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
-          }
+          },
         );
 
         uploadStream.end(file.buffer);
@@ -55,7 +52,6 @@ async function createGallery(req, res) {
       message: "Gallery Created Successfully",
       gallery: newGallery,
     });
-
   } catch (error) {
     console.log("error:", error);
 
@@ -102,7 +98,6 @@ async function deleteGallery(req, res) {
     return res.status(200).json({
       message: "Gallery deleted successfully",
     });
-
   } catch (error) {
     console.log("error:", error);
 
@@ -111,7 +106,6 @@ async function deleteGallery(req, res) {
     });
   }
 }
-
 
 async function updateGallery(req, res) {
   try {
@@ -144,7 +138,7 @@ async function updateGallery(req, res) {
             (error, result) => {
               if (error) reject(error);
               else resolve(result);
-            }
+            },
           );
 
           uploadStream.end(file.buffer);
@@ -167,7 +161,6 @@ async function updateGallery(req, res) {
       message: "Gallery Updated Successfully!",
       gallery,
     });
-
   } catch (error) {
     console.log("error:", error);
 
@@ -177,7 +170,7 @@ async function updateGallery(req, res) {
   }
 }
 
-async function  deleteGalleryImage(req, res) {
+async function deleteGalleryImage(req, res) {
   try {
     const { id, imageId } = req.params;
 
@@ -197,7 +190,13 @@ async function  deleteGalleryImage(req, res) {
       });
     }
 
-    await cloudinary.uploader.destroy(image.publicId);
+    const result = await cloudinary.uploader.destroy(image.publicId);
+
+    if (result.result !== "ok" && result.result !== "not found") {
+      return res.status(500).json({
+        error: "Failed to delete image from Cloudinary",
+      });
+    }
 
     gallery.images.pull(imageId);
 
@@ -207,7 +206,6 @@ async function  deleteGalleryImage(req, res) {
       message: "Image deleted successfully",
       gallery,
     });
-
   } catch (error) {
     console.log("error:", error);
 
@@ -217,4 +215,10 @@ async function  deleteGalleryImage(req, res) {
   }
 }
 
-module.exports = { createGallery, getGallery, deleteGallery, updateGallery, deleteGalleryImage };
+module.exports = {
+  createGallery,
+  getGallery,
+  deleteGallery,
+  updateGallery,
+  deleteGalleryImage,
+};
